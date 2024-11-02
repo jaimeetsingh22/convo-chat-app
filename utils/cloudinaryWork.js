@@ -2,13 +2,14 @@ import { v4 as uuid } from "uuid";
 import { Readable } from "stream";
 import { v2 as cloudinary } from "cloudinary";
 
-console.log("cloudinary config started...")
+
 cloudinary.config({
   cloud_name:process.env.CLOUDINARY_CLOUD_NAME,
   api_key: process.env.CLOUDINARY_API_KEY,
   api_secret:process.env.CLOUDINARY_API_SECRET
 })
-console.log("cloudinary config ended...");
+
+console.log("Uploading files....");
 
 
 export async function uploadFilesToCloudinary(files = []) {

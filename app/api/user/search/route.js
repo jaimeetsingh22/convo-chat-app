@@ -2,7 +2,6 @@ import { auth } from "@/auth";
 import { Chat } from "@/models/chat";
 import { User } from "@/models/user";
 import { connectToDB } from "@/utils/connectToDB";
-import { getAvatarUtilityClass } from "@mui/material";
 import { NextResponse } from "next/server";
 
 export const GET = async (req, res) => {

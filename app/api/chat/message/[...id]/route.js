@@ -1,8 +1,6 @@
 import { auth } from "@/auth";
-import { Chat } from "@/models/chat";
 import { Message } from "@/models/message";
 import { connectToDB } from "@/utils/connectToDB";
-import { revalidatePath } from "next/cache";
 import { NextResponse } from "next/server";
 
 export async function GET(req, { params }) {

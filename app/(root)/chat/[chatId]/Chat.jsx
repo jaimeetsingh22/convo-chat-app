@@ -3,7 +3,7 @@ import { useInfiniteScrollTop } from '6pp';
 import FileMenu from '@/components/dialogs/FileMenu';
 import MessageComponent from '@/components/shared/MessageComponent';
 import { InputBox } from '@/components/styles/StyledComponent';
-import { NEW_MESSAGE } from '@/constants/events';
+import { NEW_ATTACHMENT, NEW_MESSAGE } from '@/constants/events';
 import { useError } from '@/hooks/hook';
 import useSocketEvents from '@/hooks/useSocketEvents';
 import { setIsFileMenu } from '@/redux/reducers/miscSlice';
@@ -66,11 +66,12 @@ const Chat = () => {
     setMessages((prevMessages) => [...prevMessages, data?.message]);
   }, [])
 
-  const eventHandler = { [NEW_MESSAGE]: newMessageHandler };
+  const eventHandler = { [NEW_MESSAGE]: newMessageHandler, [NEW_ATTACHMENT]: newMessageHandler, };
 
   useSocketEvents(socket, eventHandler);
 
   useError(errors);
+
 
   const allMessages = [...oldMessages, ...messages]
 
@@ -89,8 +90,6 @@ const Chat = () => {
       behavior: 'smooth'
     });
   }, [messages]);
-
-
   return chatDetails.isLoading ? <Loading /> : (
     <>
       <Stack ref={containerRef}

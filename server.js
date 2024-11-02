@@ -2,7 +2,7 @@ import next from "next";
 import { createServer } from "node:http";
 import { Server } from "socket.io";
 import { v4 as uuid } from "uuid";
-import { NEW_MESSAGE, NEW_MESSAGE_ALERT } from "./constants/events.js";
+import { NEW_ATTACHMENT, NEW_MESSAGE, NEW_MESSAGE_ALERT } from "./constants/events.js";
 import { getSocketMembers } from "./lib/helper.js";
 import { Message } from "./models/message.js";
 import { connectToDB } from "./utils/connectToDB.js";
@@ -69,7 +69,30 @@ app.prepare().then(() => {
         console.log(error.message);
       } 
     }); 
- 
+    socket.on(NEW_ATTACHMENT, async ({ chatId, members, message }) => {
+      const messageForRealTime = {
+        content: "",
+        attachments:message.attachments,
+        _id: uuid(),
+        sender: {
+          _id: user.id,
+          name: user.name,
+        },
+        chat: chatId,
+        createdAt: new Date().toISOString(),
+      };
+
+      const membersSockets = getSocketMembers(members);
+
+      console.log("members socket: ", membersSockets);
+      io.to(membersSockets).emit(NEW_ATTACHMENT, {
+        chatId,
+        message:messageForRealTime,
+      });
+      io.to(membersSockets).emit(NEW_MESSAGE_ALERT, { chatId });
+    }); 
+
+    
     socket.on("disconnect", () => {
       console.log("User disconnected");
       userSocketIDs.delete(user.id.toString());

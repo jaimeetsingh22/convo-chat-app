@@ -1,14 +1,9 @@
 import { auth } from "@/auth";
-import { NEW_ATTACHMENT, NEW_MESSAGE, NEW_MESSAGE_ALERT } from "@/constants/events";
-import { emitEvent } from "@/utils/feature";
 import { Chat } from "@/models/chat";
 import { Message } from "@/models/message";
-import { User } from "@/models/user";
+import { uploadFilesToCloudinary } from "@/utils/cloudinaryWork";
 import { connectToDB } from "@/utils/connectToDB";
 import { NextResponse } from "next/server";
-import { writeFile } from "fs/promises";
-import { revalidatePath } from "next/cache";
-import { uploadFilesToCloudinary } from "@/utils/cloudinaryWork";
 
 export async function POST(req) {
   try {
@@ -20,7 +15,6 @@ export async function POST(req) {
         { status: 401 }
       );
     }
-
 
     // Connect to the database
     await connectToDB();
@@ -37,9 +31,8 @@ export async function POST(req) {
       );
     }
     // Fetch chat and user details in parallel
-    const [chat, me] = await Promise.all([
+    const [chat] = await Promise.all([
       Chat.findById(chatId),
-      User.findById(myId, "name"),
     ]);
 
     if (!chat) {
@@ -48,53 +41,35 @@ export async function POST(req) {
 
     const files = formdata.getAll("files");
 
-
     const datas = [];
     for (const file of files) {
       const arrayBuffer = await file.arrayBuffer();
-      const buffer = Buffer.from(arrayBuffer); 
-      datas.push(buffer); 
-      // revalidatePath('') // This function allows you to purge cached data on-demand for a specific path.
-      // means the above revalidatePath functions will refresh the cashed data on-demand for a specific path i will use it later
+      const buffer = Buffer.from(arrayBuffer);
+      datas.push(buffer);
     }
-    console.log("file buffer array: ",datas);
-    
-    // console.log(buffer);
+
     if (files.length < 1) {
       return NextResponse.json(
         { message: "Please Provide attachments" },
         { status: 400 }
       );
     }
-    
+
     // upload files here // cloudinary work!
     const attachments = await uploadFilesToCloudinary(datas);
-    console.log("attachments results: ",attachments);
     const messageForDB = {
       content: "",
       attachments,
-      sender: me._id,
+      sender: myId,
       chat: chatId,
-    };
-    const messageForRealTime = {
-      ...messageForDB,
-      sender: {
-        _id: me._id,
-        name: me.name,
-      },
     };
 
     const message = await Message.create(messageForDB);
 
-    emitEvent(req, NEW_MESSAGE, chat.members, {
-      message: messageForRealTime,
-      chatId,
-    });
-    emitEvent(req, NEW_MESSAGE_ALERT, { chatId });
-
     return NextResponse.json({
       success: true,
       message,
+      members: chat.members,
     });
   } catch (error) {
     console.error("Error during file upload:", error);

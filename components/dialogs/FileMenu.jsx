@@ -1,18 +1,19 @@
+import { NEW_ATTACHMENT } from '@/constants/events';
 import { setIsFileMenu, setUploadingLoader } from '@/redux/reducers/miscSlice';
 import { useSendAttachmentsMutation } from '@/redux/RTK-query/api/api';
+import { getSocket } from '@/socket';
 import { AudioFile as AudioFileIcon, Image as ImageIcon, UploadFile as UploadFileIcon, VideoFile as VideoFileIcon } from '@mui/icons-material';
-import { Button, Dialog, DialogActions, DialogContent, ListItemText, Menu, MenuItem, MenuList, Tooltip, Typography } from '@mui/material'
-import { revalidatePath } from 'next/cache';
-import React, { useRef, useState } from 'react'
+import { Button, Dialog, DialogActions, DialogContent, ListItemText, Menu, MenuItem, MenuList, Tooltip, Typography } from '@mui/material';
+import { useRef, useState } from 'react';
 import toast from 'react-hot-toast';
-import { useDispatch, useSelector } from 'react-redux'
+import { useDispatch, useSelector } from 'react-redux';
 
-const FileMenu = ({ anchorE1,chatId }) => {
+const FileMenu = ({ anchorE1, chatId }) => {
   const { isFileMenu } = useSelector(state => state.misc);
   const [previewFile, setPreviewFile] = useState(null); // New state for file preview
   const [isOpen, setIsOpen] = useState(false);
 
-
+  const socket = getSocket();
   const dispatch = useDispatch();
 
   const imageRef = useRef(null);
@@ -64,16 +65,23 @@ const FileMenu = ({ anchorE1,chatId }) => {
         myForm.append('files', file);
       });
       const res = await sendAttachments(myForm);
-      console.log(res.data);
-      if(res.data){
-        toast.success("File sent successfully", { id: toastId });
-      }else{
+      if (res.data) {
+      toast.success("File sent successfully", { id: toastId });
+       console.log(res.data)
+        socket.emit(NEW_ATTACHMENT, {
+          chatId,
+          members:res.data.members,
+          message:res.data.message,
+        })        
+        // socket.emit(NEW_MESSAGE,)
+
+      } else {
         toast.error("Failed to send file", { id: toastId });
       }
-      
+
     } catch (error) {
-      toast.error(error.message,{id:toastId});
-    } finally{
+      toast.error(error.message, { id: toastId });
+    } finally {
       dispatch(setUploadingLoader(false));
     }
   };

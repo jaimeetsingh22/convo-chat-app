@@ -22,7 +22,7 @@ const Profile = ({ data }) => {
                         marginBottom: '1rem',
                         border: '5px solid white'
                     }}
-                    src={transformImage(avatar?.url)}
+                    src={transformImage(avatar?.url,400)}
                 />
             </a>
             <ProfileCard text={bio} heading={'Bio'} />
