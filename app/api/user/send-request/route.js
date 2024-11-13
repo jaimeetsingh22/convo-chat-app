@@ -12,7 +12,7 @@ export async function PUT(req) {
     if (!user) {
       // const url = new URL('/login', req.url);
       return NextResponse.json(
-        { message: "you need to Login first" },
+        {success:false, message: "you need to Login first" },
         { status: 401 }
       );
     }
@@ -24,7 +24,7 @@ export async function PUT(req) {
     
     if (!userId) {
       return NextResponse.json(
-        { message: "userId is required" },
+        {success:false, message: "userId is required" },
         { status: 400 }
       );
     }
@@ -38,7 +38,7 @@ export async function PUT(req) {
 
     if (request) {
       return NextResponse.json(
-        { message: "Request already Sent" },
+        { success:false,message: "Request already Sent" },
         { status: 400 }
       );
     }
@@ -50,15 +50,15 @@ export async function PUT(req) {
 
     emitEvent(req, NEW_REQUEST, [userId]);
 
-    return NextResponse.json({ success: true, message: "Friend Request Sent" });
+    return NextResponse.json({ success: true, message: "Friend Request Sent",reciever: userId });
   } catch (error) {
     console.log(error);
     if (error.name === "CastError") {
       error.message = `invalid Format of ${error.path}`;
-      return NextResponse.json({ errors: error }, { status: 400 });
+      return NextResponse.json({ success:false,errors: error }, { status: 400 });
     }
     return NextResponse.json(
-      { errorMessage: "error check logs", errors: error },
+      { success:false,errorMessage: "error check logs", errors: error },
       { status: 500 }
     );
   }

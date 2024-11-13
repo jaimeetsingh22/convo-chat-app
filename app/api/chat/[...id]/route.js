@@ -25,7 +25,7 @@ export async function GET(req, { params }) {
   const id = params["id"][0];
   const query = req.nextUrl.searchParams;
   const populate = query.get("populate");
-  console.log(id);
+
   try {
     if (populate) {
       const chat = await Chat.findById(id)
@@ -238,7 +238,7 @@ async function deleteChatById(req, id, myId) {
     emitEvent(req, REFETCH_CHATS, members);
 
     return NextResponse.json(
-      { message: "Chat deleted successfully" },
+      { success: true, message: "Chat deleted successfully", members },
       { status: 200 }
     );
   } catch (error) {

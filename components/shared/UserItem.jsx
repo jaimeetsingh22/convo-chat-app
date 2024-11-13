@@ -39,7 +39,7 @@ const UserItem = ({ user, handler, handlerIsLoading, isAdded = false, styling={}
                             bgcolor: isAdded ? "error.dark" : 'primary.dark'
                         }
                     }}
-                    onClick={() => handler(_id)} disabled={handlerIsLoading}>
+                    onClick={() => handler(_id)}>
                     {
                         isAdded ? <RemoveIcon /> : <AddIcon />
                     }

@@ -1,4 +1,5 @@
 import { auth } from "@/auth";
+import { Chat } from "@/models/chat";
 import { Message } from "@/models/message";
 import { connectToDB } from "@/utils/connectToDB";
 import { NextResponse } from "next/server";
@@ -25,6 +26,21 @@ export async function GET(req, { params }) {
     const chatId = id;
     const resultPerPage = 20;
     const skip = (page - 1) * resultPerPage;
+
+    const chat = await Chat.findById(id);
+    if (!chat) {
+      return NextResponse.json(
+        { success: false, message: "Chat not found" },
+        { status: 404 }
+      );
+    }
+    if (!chat.members.includes(myId.toString())) {
+      return NextResponse.json(
+        { success: false, message: "You are not a member of this chat" },
+        { status: 403 }
+      );
+    }
+
     const [messages, totalMessagesCount] = await Promise.all([
       Message.find({ chat: chatId })
         .sort({ createdAt: -1 })

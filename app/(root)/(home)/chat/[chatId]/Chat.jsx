@@ -3,7 +3,7 @@ import { useInfiniteScrollTop } from '6pp';
 import FileMenu from '@/components/dialogs/FileMenu';
 import MessageComponent from '@/components/shared/MessageComponent';
 import { InputBox } from '@/components/styles/StyledComponent';
-import { NEW_ATTACHMENT, NEW_MESSAGE } from '@/constants/events';
+import { ALERT, NEW_ATTACHMENT, NEW_MESSAGE, START_TYPING, STOP_TYPING } from '@/constants/events';
 import { useError } from '@/hooks/hook';
 import useSocketEvents from '@/hooks/useSocketEvents';
 import { setIsFileMenu } from '@/redux/reducers/miscSlice';
@@ -12,10 +12,13 @@ import { getSocket } from '@/socket';
 import { AttachFile as AttachFileIcon, SendOutlined as SendIcon } from '@mui/icons-material';
 import { Button, Dialog, DialogActions, DialogContent, IconButton, Stack, Typography } from '@mui/material';
 import { useSession } from 'next-auth/react';
-import { useParams } from 'next/navigation';
+import { useParams, useRouter } from 'next/navigation';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { useDispatch } from 'react-redux';
-import Loading from '../../loading';
+import Loading from '@/app/(root)/(home)/loading';
+import { removeNewMessageAlert } from '@/redux/reducers/chat';
+import TypingLayout from '@/components/specific/TypingLayout';
+import { v4 } from 'uuid';
 
 
 
@@ -27,9 +30,12 @@ const Chat = () => {
   const [messages, setMessages] = useState([]);
   const [page, setPage] = useState(1);
   const [fileMenuAnchor, setFileMenuAnchor] = useState(null);
-
+  const [IamTyping, setIamTyping] = useState(false);
+  const [userTyping, setUserTyping] = useState(false);
+  const typingTimeOut = useRef(null);
+  const bottomRef = useRef(null);
   const dispatch = useDispatch();
-
+  const router = useRouter();
   const containerRef = useRef(null);
 
   const socket = getSocket();
@@ -61,12 +67,67 @@ const Chat = () => {
     setMessage("");
   }
 
+  useEffect(() => {
+    dispatch(removeNewMessageAlert(chatId))
 
-  const newMessageHandler = useCallback((data) => {
+    return () => {
+      setMessages([]);
+      setMessage("");
+      setOldMessages([]);
+      setPage(1);
+    }
+  }, [chatId]);
+
+  const messagOnChangeHandler = (e) => {
+    setMessage(e.target.value);
+    if (!IamTyping) {
+      socket.emit(START_TYPING, { members, chatId });
+      setIamTyping(true);
+    }
+
+    if (typingTimeOut.current) clearTimeout(typingTimeOut.current);
+
+    typingTimeOut.current = setTimeout(() => {
+      socket.emit(STOP_TYPING, { members, chatId });
+      setIamTyping(false);
+
+    }, 1000);
+  }
+
+  const newMessagesListener = useCallback((data) => {
+    if (data.chatId !== chatId) return;
     setMessages((prevMessages) => [...prevMessages, data?.message]);
-  }, [])
+  }, [chatId]);
+  const alertListener = useCallback(({ message }) => {
+    // if (data.chatId !== chatId) return;
+    const messageForAlert = {
+      content: message,
+      _id: v4(),
+      sender: {
+        _id: "asldkjfkjdvksdjf",
+        name: "Group Admin",
+      },
+      chat: chatId,
+      createdAt: new Date().toISOString(),
+    };
 
-  const eventHandler = { [NEW_MESSAGE]: newMessageHandler, [NEW_ATTACHMENT]: newMessageHandler, };
+    setMessages((prevMessages) => [...prevMessages, messageForAlert]);
+  }, [chatId]);
+
+
+
+  const startTypingListener = useCallback((data) => {
+    if (data.chatId !== chatId) return;
+    setUserTyping(true);
+  }, [chatId])
+  const stopTypingListener = useCallback((data) => {
+    if (data.chatId !== chatId) return;
+    setUserTyping(false);
+  }, [chatId])
+
+
+
+  const eventHandler = { [NEW_MESSAGE]: newMessagesListener, [NEW_ATTACHMENT]: newMessagesListener, [START_TYPING]: startTypingListener, [STOP_TYPING]: stopTypingListener, [ALERT]: alertListener };
 
   useSocketEvents(socket, eventHandler);
 
@@ -77,11 +138,19 @@ const Chat = () => {
 
   // Scroll to the bottom on initial load
   useEffect(() => {
-    containerRef.current?.scrollTo({
-      top: containerRef.current.scrollHeight,
-      behavior: 'smooth'
-    });
-  }, []);
+    if (bottomRef.current) {
+      bottomRef.current?.scrollIntoView({
+        behavior: 'smooth'
+      });
+    }
+  }, [messages]);
+
+  // useEffect(() => {
+  //   if (!chatDetails.data?.chat) {
+  //     return router.replace("/");
+  //   }
+  // }, [chatDetails.data])
+
 
   // Auto-scroll to the bottom on new message
   useEffect(() => {
@@ -89,7 +158,9 @@ const Chat = () => {
       top: containerRef.current.scrollHeight,
       behavior: 'smooth'
     });
-  }, [messages]);
+  }, [messages, userTyping]);
+
+
   return chatDetails.isLoading ? <Loading /> : (
     <>
       <Stack ref={containerRef}
@@ -117,6 +188,8 @@ const Chat = () => {
             <MessageComponent key={i._id} message={i} user={user?.user} />
           ))
         }
+        {userTyping && (<TypingLayout />)}
+        <div ref={bottomRef} />
       </Stack>
 
       <form style={{
@@ -134,7 +207,7 @@ const Chat = () => {
           >
             <AttachFileIcon />
           </IconButton >
-          <InputBox placeholder='Type your message here...' value={message} onChange={(e) => setMessage(e.target.value)} />
+          <InputBox placeholder='Type your message here...' value={message} onChange={messagOnChangeHandler} />
           <IconButton sx={{
             color: 'white',
             marginLeft: '0.5rem',

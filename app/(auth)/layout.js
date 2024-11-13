@@ -7,7 +7,7 @@ export default function RootLayout({ children, session }) {
     <html lang="en">
       <body>
         <SessionProvider session={session}>
-          <CssBaseline  />
+          <CssBaseline />
           <Toaster />
           {children}
         </SessionProvider>

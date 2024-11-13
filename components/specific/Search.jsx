@@ -9,6 +9,8 @@ import { useDispatch, useSelector } from 'react-redux'
 import { setIsSearch } from '@/redux/reducers/miscSlice'
 import { useLazySearchUserQuery, useSendFriendRequestMutation } from '@/redux/RTK-query/api/api'
 import { useAsyncMutation } from '@/hooks/hook'
+import { getSocket } from '@/socket'
+import { NEW_REQUEST } from '@/constants/events'
 
 const Search = () => {
   const search = useInputValidation("");
@@ -18,11 +20,22 @@ const Search = () => {
   const dispatch = useDispatch();
   const { isSearch } = useSelector(state => state.misc)
   const [searchUser] = useLazySearchUserQuery();
-  const [sendFriendRequest, isLoadingSendFriendRequest] = useAsyncMutation(useSendFriendRequestMutation);
-
+  const [sendFriendRequest, isLoadingSendFriendRequest,requestData] = useAsyncMutation(useSendFriendRequestMutation);
+  const socket = getSocket()
   const addFriendHandler = async (id) => {
-    await sendFriendRequest("Sending Friend Request...", { userId: id });
-  }
+    const res = await sendFriendRequest("Sending Friend Request...", { userId: id });
+    console.log("add friend handler: ",res);
+    
+    if (res.data && res.data.success) {
+      // Friend request was successful, emit the event
+      socket.emit(NEW_REQUEST, { userId: id });
+      console.log("emmiting event");
+    } else if (res.error) {
+      console.log("Friend request failed:", res.error);
+      // Optionally, handle the case where the friend request was already sent
+    }
+  };
+
   const handleClose = () => dispatch(setIsSearch(false))
 
   useEffect(() => {

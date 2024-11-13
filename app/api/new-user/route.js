@@ -14,7 +14,7 @@ export const POST = async (req, res) => {
     if (!name) errors.push({ field: "name", message: "Please enter name" });
     if (!username) errors.push({ field: "username", message: "Please enter username" });
     if (!password) errors.push({ field: "password", message: "Please enter password" });
-    if (!avatar) errors.push({ field: "avatar", message: "Please add an avatar" });
+    // if (!avatar) errors.push({ field: "avatar", message: "Please add an avatar" });
 
     if (errors.length > 0) {
       return NextResponse.json({ errors }, { status: 400 });
@@ -27,11 +27,13 @@ export const POST = async (req, res) => {
       return NextResponse.json({ message: "User already exists" }, { status: 409 });
     }
 
-    if (!(avatar instanceof Blob)) {
-      return NextResponse.json({ message: "Invalid avatar file or Missing" }, { status: 400 });
-    }
-
+    // if (!(avatar instanceof Blob)) {
+    //   return NextResponse.json({ message: "Invalid avatar file or Missing" }, { status: 400 });
+    // }
+    let avatardata = {};
+    if(avatar){
     const fileSizeInBytes = avatar.size;
+
     const fileSizeInMB = fileSizeInBytes / (1024 * 1024);
 
     if (fileSizeInMB > 5) {
@@ -47,7 +49,8 @@ export const POST = async (req, res) => {
       public_id: result[0].public_id,
       url: result[0].url,
     };
-
+    avatardata = avatarData;
+  }
     const hashedPassword = await hash(password, 10);
 
     await User.create({
@@ -55,7 +58,7 @@ export const POST = async (req, res) => {
       username,
       password: hashedPassword,
       bio,
-      avatar: avatarData,
+      avatar: avatardata,
     });
 
     return NextResponse.json({ message: "Account created successfully!" }, { status: 201 });

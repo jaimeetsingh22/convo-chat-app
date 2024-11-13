@@ -56,6 +56,8 @@ export const DELETE = async (req, res) => {
         { status: 400 }
       );
 
+    const allChatMembers = chat?.members.map((i) => i.toString());
+
     chat.members = chat?.members.filter(
       (member) => member.toString() !== userId.toString()
     );
@@ -67,8 +69,14 @@ export const DELETE = async (req, res) => {
       `${userThatWillRemove.name} has been removed from the group`
     );
     emitEvent(req, REFETCH_CHATS, chat.member);
+    const removedMemberMemberMessage = `${userThatWillRemove.name} has been removed from the group`;
     return NextResponse.json(
-      { message: "Member removed Successfully  " },
+      {
+        success: true,
+        message: "Member removed Successfully",
+        removedMemberMemberMessage,
+        members: allChatMembers,
+      },
       { status: 200 }
     );
   } catch (error) {

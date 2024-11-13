@@ -3,15 +3,12 @@ import React from 'react'
 // import Home from './Home'
 import dynamic from 'next/dynamic'
 
-const Home = dynamic(()=>import('./Home'),{ssr: false});
+const Home = dynamic(() => import('./Home'), { ssr: false });
 
 
 const page = () => {
-  
-
-  // getData();
-  return (
-    <Home/>
+return (
+    <Home />
   )
 }
 

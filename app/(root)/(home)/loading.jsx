@@ -20,11 +20,11 @@ const Loading = () => {
                                 justifyContent={index % 2 === 0 ? 'flex-start' : 'flex-end'}
                                 key={index}
                             >
-                                <Skeleton 
-                                    variant="rounded" 
-                                    width={'40vw'} 
-                                    height={'5vh'} 
-                                    style={{ margin: '0.5rem',borderRadius:'1rem' }} 
+                                <Skeleton
+                                    variant="rounded"
+                                    width={'40vw'}
+                                    height={'5vh'}
+                                    style={{ margin: '0.5rem', borderRadius: '1rem' }}
                                 />
                             </Grid>
                         ))

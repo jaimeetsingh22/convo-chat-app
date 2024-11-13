@@ -14,7 +14,7 @@ const ChatItem = ({
     groupChat = false,
     sameSender,
     isOnline,
-    newMessageAlert = [],
+    newMessageAlert ,
     index = 0,
     handleDeleteChat
 }) => {
@@ -60,7 +60,7 @@ const ChatItem = ({
                     <Typography alignSelf={'center'}>{name}</Typography>
                     {
                         newMessageAlert && (
-                            <Typography color={sameSender ? "white" : "black"}>{newMessageAlert.count} </Typography>
+                            <Typography fontSize={'0.6rem'} color={sameSender ? "white" : "black"}>{newMessageAlert.count} New Message</Typography>
                         )
                     }
                 </Stack>

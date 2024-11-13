@@ -1,6 +1,7 @@
 // import { Schema, model, models } from "mongoose";
 
 import mongoose from "mongoose"; 
+import { v4 } from "uuid";
 const { Schema, Types, model, models } = mongoose;
 const userSchema = new Schema(
   {
@@ -25,11 +26,13 @@ const userSchema = new Schema(
     avatar: {
       public_id: {
         type: String,
-        required: true,
+        required: false,
+        default:v4() 
       },
       url: {
         type: String,
-        required: true,
+        required: false,
+        default:"https://png.pngitem.com/pimgs/s/421-4212266_transparent-default-avatar-png-default-avatar-images-png.png"
       },
     },
   },

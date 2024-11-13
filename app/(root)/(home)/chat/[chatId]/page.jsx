@@ -2,7 +2,7 @@ import AlternateChatsLoading from '@/components/LoadingsComponent/AlternateChats
 import dynamic from 'next/dynamic';
 import React from 'react'
 // import Chat from './Chat'
-const Chat = dynamic(() => import('./Chat'), {
+const Chat = dynamic(() => import('@/app/(root)/(home)/chat/[chatId]/Chat'), {
   loading: () => <AlternateChatsLoading />,
   ssr: false
 });

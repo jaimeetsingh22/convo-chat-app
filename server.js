@@ -2,13 +2,21 @@ import next from "next";
 import { createServer } from "node:http";
 import { Server } from "socket.io";
 import { v4 as uuid } from "uuid";
-import { NEW_ATTACHMENT, NEW_MESSAGE, NEW_MESSAGE_ALERT } from "./constants/events.js";
+import {
+  ALERT,
+  NEW_ATTACHMENT,
+  NEW_MESSAGE,
+  NEW_MESSAGE_ALERT,
+  NEW_REQUEST,
+  REFETCH_CHATS,
+  START_TYPING,
+  STOP_TYPING,
+} from "./constants/events.js";
 import { getSocketMembers } from "./lib/helper.js";
 import { Message } from "./models/message.js";
 import { connectToDB } from "./utils/connectToDB.js";
 import cookieParser from "cookie-parser";
 import { socketAuthenticator } from "./middlewares/socketAuth.js";
-import { SoupKitchen } from "@mui/icons-material";
 
 const dev = process.env.NODE_ENV !== "production";
 const hostname = "localhost";
@@ -56,10 +64,9 @@ app.prepare().then(() => {
       };
 
       const membersSockets = getSocketMembers(members);
-      console.log("members socket: ", membersSockets);
       io.to(membersSockets).emit(NEW_MESSAGE, {
         chatId,
-        message:messageForRealTime,
+        message: messageForRealTime,
       });
       console.log(socket.id);
       io.to(membersSockets).emit(NEW_MESSAGE_ALERT, { chatId });
@@ -67,12 +74,24 @@ app.prepare().then(() => {
         await Message.create(messageForDB);
       } catch (error) {
         console.log(error.message);
-      } 
-    }); 
+      }
+    });
+    socket.on(ALERT, ({ allMembers, message }) => {
+      const membersSockets = getSocketMembers(allMembers);
+      socket.to(membersSockets).emit(ALERT, { message });
+    });
+    socket.on(START_TYPING, ({ members, chatId }) => {
+      const membersSockets = getSocketMembers(members);
+      socket.to(membersSockets).emit(START_TYPING, { chatId });
+    });
+    socket.on(STOP_TYPING, ({ members, chatId }) => {
+      const membersSockets = getSocketMembers(members);
+      socket.to(membersSockets).emit(STOP_TYPING, { chatId });
+    });
     socket.on(NEW_ATTACHMENT, async ({ chatId, members, message }) => {
       const messageForRealTime = {
         content: "",
-        attachments:message.attachments,
+        attachments: message.attachments,
         _id: uuid(),
         sender: {
           _id: user.id,
@@ -87,12 +106,22 @@ app.prepare().then(() => {
       console.log("members socket: ", membersSockets);
       io.to(membersSockets).emit(NEW_ATTACHMENT, {
         chatId,
-        message:messageForRealTime,
+        message: messageForRealTime,
       });
       io.to(membersSockets).emit(NEW_MESSAGE_ALERT, { chatId });
-    }); 
+    });
+    socket.on(NEW_REQUEST, ({ userId }) => {
+      const userSocket = getSocketMembers([userId]);
+      console.log("userId socket Id: ", userSocket);
 
-    
+      io.to(userSocket).emit(NEW_REQUEST, { userId });
+    });
+    socket.on(REFETCH_CHATS, ({ members }) => {
+      const membersSockets = getSocketMembers(members);
+      console.log("members sockets", membersSockets);
+      socket.to(membersSockets).emit(REFETCH_CHATS, { members });
+    });
+
     socket.on("disconnect", () => {
       console.log("User disconnected");
       userSocketIDs.delete(user.id.toString());

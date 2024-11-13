@@ -1,22 +1,20 @@
-import Layouts from "@/components/layouts/Layouts";
+import AppLayout from "@/components/layouts/AppLayout";
 import StoreProvider from "@/components/layouts/StoreProvider";
 import { SocketProvider } from "@/socket";
 import { SessionProvider } from "next-auth/react";
-import { Toaster } from "react-hot-toast";
 
-export default function RootLayout({ children, session }) {
+export default function RootLayout({ children }) {
   return (
-    <html lang="en">
-      <body>
-        <SessionProvider session={session}>
-          <SocketProvider>
-            <StoreProvider>
-              <Toaster />
-              <Layouts>{children}</Layouts>
-            </StoreProvider>
-          </SocketProvider>
+    <>
+   
+        <SessionProvider>
+          <StoreProvider>
+            <SocketProvider>
+              {children}
+              </SocketProvider>
+          </StoreProvider>
         </SessionProvider>
-      </body>
-    </html>
+   
+    </>
   );
 }

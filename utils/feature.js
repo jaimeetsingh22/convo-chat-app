@@ -1,6 +1,4 @@
-
 import moment from "moment";
-
 
 const fileFormat = (url = "") => {
   let ext = url.split(".").pop();
@@ -28,9 +26,12 @@ const fileFormat = (url = "") => {
 };
 
 const transformImage = (url = "", width = 100) => {
-  const newUrl = url.replace("upload/",`upload/dpr_auto/w_${width}/`);
-  return newUrl;
+  if (url.includes("upload/")) {
+    return url.replace("upload/", `upload/dpr_auto/w_${width}/`);
+  }
+  return url;
 };
+
 
 const getLast7Days = () => {
   const currentDate = moment();
@@ -44,11 +45,17 @@ const getLast7Days = () => {
 };
 
 const emitEvent = (req, event, users, data) => {
-  
   console.log("emiting event", event);
 };
 
-
+const getOrSaveFromStorage = ({ key, value, get }) => {
+  // if (get) {
+  //   return localStorage.getItem(key) ? JSON.parse(localStorage.getItem(key)) : null;
+  // } else {
+  //   localStorage.setItem(key, JSON.stringify(value));
+  // }
+  return null;
+};
 
 async function deleteFilesFromCloudinary(public_ids) {
   // logic here
@@ -60,4 +67,5 @@ export {
   getLast7Days,
   emitEvent,
   deleteFilesFromCloudinary,
+  getOrSaveFromStorage,
 };

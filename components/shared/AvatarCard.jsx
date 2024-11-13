@@ -10,7 +10,7 @@ const AvatarCard = ({ avatar = [], max = 4, top = "1rem" }) => {
                     {avatar.map((item, index) =>{
                        return (
                         
-                            <Avatar key={index} src={transformImage(item?.avatar?.url)} alt={item}
+                            <Avatar key={index} src={transformImage(item?.avatar?.url || item)} alt={item}
                                 sx={{
                                     width: "3rem",
                                     height: "3rem",

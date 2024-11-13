@@ -4,7 +4,7 @@ import { connectToDB } from "@/utils/connectToDB";
 import { NextResponse } from "next/server";
 
 export async function GET(req) {
-  console.log("this function is called");
+
   try {
     const session = await auth();
     const user = session?.user;
@@ -19,7 +19,7 @@ export async function GET(req) {
     await connectToDB();
     const myId = user.id;
     const query = req.nextUrl.searchParams;
-    const chatId = query.get("id");
+    const chatId = query.get("chatId");
 
     const chats = await Chat.find({ members: myId, groupChat: false }).populate(
       "members",

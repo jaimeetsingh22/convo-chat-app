@@ -115,3 +115,12 @@ app.prepare().then(() => {
       console.log(`> Ready on http://${hostname}:${port}`);
     });
 });
+
+
+to do work 
+refetching chats when created a group 
+fixing the redirects working in the groups when the group is deleted then the page is redirected to the /groups page
+contoll the emiting events for non related chats
+make loading component for each pages like home,groups and loading
+improve the UI for interactive interface
+

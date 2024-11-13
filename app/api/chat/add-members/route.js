@@ -22,8 +22,11 @@ export const PUT = async (req, res) => {
     const myId = user.id;
     const { chatId, members } = await req.json();
     // console.log(chatId, members);
-    if(!chatId){
-      return NextResponse.json({message: "Chat ID is required"}, {status: 400})
+    if (!chatId) {
+      return NextResponse.json(
+        { message: "Chat ID is required" },
+        { status: 400 }
+      );
     }
     if (!members || members.length < 1) {
       return NextResponse.json(
@@ -92,6 +95,12 @@ export const PUT = async (req, res) => {
         message: existingMembers
           ? `${existingMembers} Already Exist Rest of Members are Added`
           : "Members Added successfully!",
+        members: chat.members,
+        messageForAlert: `${
+          existingMembers
+            ? `${existingMembers} are already present in the group and ${allUsersName} are added to the group`
+            : `${allUsersName} has been added in this group`
+        }`,
       },
       { status: 200 }
     );
@@ -101,6 +110,6 @@ export const PUT = async (req, res) => {
       error.message = `invalid Format of ${error.path}`;
       return NextResponse.json({ errors: error }, { status: 400 });
     }
-    return NextResponse.json({ error },{status:500});
+    return NextResponse.json({ error }, { status: 500 });
   }
 };

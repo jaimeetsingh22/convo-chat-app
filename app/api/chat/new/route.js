@@ -24,14 +24,20 @@ export const POST = async (req, res) => {
 
     // Check if group name is provided
     if (!name) {
-      errors.push({ field: "name", message: "Please enter the name of the group" });
+      errors.push({
+        field: "name",
+        message: "Please enter the name of the group",
+      });
     }
 
     // Check if members array is provided and its length
     if (!members || members.length === 0) {
       errors.push({ field: "members", message: "Please enter members" });
     } else if (members.length < 2 || members.length > 200) {
-      errors.push({ field: "members", message: "Members must be between 2 and 200" });
+      errors.push({
+        field: "members",
+        message: "Members must be between 2 and 200",
+      });
     }
 
     // If there are validation errors, return them
@@ -61,7 +67,7 @@ export const POST = async (req, res) => {
     emitEvent(req, ALERT, allMembers, `Welcome to ${name} group`);
 
     return NextResponse.json(
-      { message: "Group created successfully" },
+      { success: true, message: "Group created successfully" },
       { status: 201 }
     );
   } catch (error) {

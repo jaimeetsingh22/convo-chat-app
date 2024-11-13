@@ -1,16 +1,16 @@
 'use client'
 import { useError } from '@/hooks/hook';
+import { resetNotification } from '@/redux/reducers/chat';
 import { setIsNotification } from '@/redux/reducers/miscSlice';
 import { useAcceptFriendRequestMutation, useGetNotificationQuery } from '@/redux/RTK-query/api/api';
 import { Check, Close } from '@mui/icons-material';
 import { Avatar, Button, Dialog, DialogTitle, ListItem, Stack, Tooltip, Typography } from '@mui/material';
 import { motion } from 'framer-motion';
-import { memo } from 'react';
+import { memo, useState } from 'react';
 import toast from 'react-hot-toast';
 import { useDispatch, useSelector } from 'react-redux';
 
 const Notification = () => {
-
 
   const dispatch = useDispatch();
   const { isNotification } = useSelector(state => state.misc)
@@ -19,21 +19,24 @@ const Notification = () => {
 
 
   const friendRequestHandler = async ({ _id, accept }) => {
+    dispatch(resetNotification())
     try {
       const res = await acceptRequest({ requestId: _id, accept });
 
-      if(res.data?.success){
-        console.log("socket work here");
+      if (res.data?.success) {
+
         dispatch(setIsNotification(false));
         toast.success(res.data?.message);
-      }else toast.error(res.data?.error || "Something went wrong!");
+      } else toast.error(res.data?.error || "Something went wrong!");
 
     } catch (error) {
       console.log(error);
     }
   };
 
-  const handleClose = () => dispatch(setIsNotification(false))
+  const handleClose = () => {
+    dispatch(setIsNotification(false))
+  }
 
   useError([{ error, isError }])
   return (
@@ -87,7 +90,7 @@ const NotificationItem = memo(({ _id, sender, handler }) => (
         width={'100%'}
       >
         <Avatar src={sender?.avatar} />
-        <Tooltip  title={`${sender.name} sent you friend request.`}>
+        <Tooltip title={`${sender.name} sent you friend request.`}>
 
           <Typography
             variant='body1'
@@ -99,7 +102,7 @@ const NotificationItem = memo(({ _id, sender, handler }) => (
               overflow: 'hidden',
               textOverflow: 'ellipsis',
               width: '100%',
-              cursor:"default"
+              cursor: "default"
             }}
           >
             {`${sender.name} sent you a friend request.`}

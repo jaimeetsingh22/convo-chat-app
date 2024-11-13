@@ -1,5 +1,6 @@
 "use client"
 
+import { useSession } from "next-auth/react";
 import { createContext, useContext, useEffect, useState } from "react";
 import io from "socket.io-client";
 
@@ -9,6 +10,7 @@ const getSocket = () => useContext(SocketContext);
 
  const SocketProvider = ({ children }) => {
   const [socket, setSocket] = useState(null);
+ 
 
   useEffect(() => {
     const newSocket = io(process.env.NEXT_PUBLIC_SOCKET_URL, {
@@ -22,7 +24,7 @@ const getSocket = () => useContext(SocketContext);
     });
 
     newSocket.on("connect", () => {
-      console.log("Connected to socket server with ID:", newSocket.id);
+      // console.log("Connected to socket server with ID:", newSocket.id);
     });
 
     newSocket.on("connect_error", (err) => {

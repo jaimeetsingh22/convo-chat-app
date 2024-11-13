@@ -1,9 +1,8 @@
 'use client'
 import AvatarCard from '@/components/shared/AvatarCard'
-import { sampleChats, sampleUsers } from '@/constants/sampleData'
 import { motion } from 'framer-motion'
 import { Add as AddIcon, Delete as DeleteIcon, Done as DoneIcon, DriveFileRenameOutline as DriveFileRenameOutlineIcon, KeyboardBackspace as KeyboardBackspaceIcon, Menu as MenuIcon } from '@mui/icons-material'
-import { Backdrop, Box, Button, Drawer, Grid, IconButton, Stack, TextField, Tooltip, Typography } from '@mui/material'
+import { Backdrop, Box, Button, CircularProgress, Drawer, Grid, IconButton, Stack, TextField, Tooltip, Typography } from '@mui/material'
 import Link from 'next/link'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { useEffect, useState } from 'react'
@@ -12,11 +11,18 @@ import UserItem from '@/components/shared/UserItem'
 import { chatBackground } from '@/constants/color'
 import { useSession } from 'next-auth/react'
 import { LoadingComponent } from '@/components/LoadingsComponent/Loading'
-const ConfirmDeleteDialog = dynamic(() => import('../../components/dialogs/ConfirmDeleteDialog'), {
+import { useAddGroupMemberMutation, useChatDetailsQuery, useDeleteChatMutation, useMyGroupsQuery, useRemoveGroupMemberMutation, useRenameGroupMutation } from '@/redux/RTK-query/api/api'
+import { useAsyncMutation, useError } from '@/hooks/hook'
+import ChatlistSkeleton from '@/components/LoadingsComponent/ChatlistSkeleton'
+import { getSocket } from '@/socket'
+import { ALERT, REFETCH_CHATS } from '@/constants/events'
+import { useDispatch, useSelector } from 'react-redux'
+import { setIsAddMember } from '@/redux/reducers/miscSlice'
+const ConfirmDeleteDialog = dynamic(() => import('@/components/dialogs/ConfirmDeleteDialog'), {
   ssr: false,
   loading: () => <Backdrop open />
 });
-const AddMemberDialog = dynamic(() => import('../../components/dialogs/AddMemberDialog'), {
+const AddMemberDialog = dynamic(() => import('@/components/dialogs/AddMemberDialog'), {
   ssr: false,
   loading: () => <Backdrop open />
 });
@@ -31,40 +37,53 @@ const Groups = () => {
   const [groupName, setGroupName] = useState('');
   const [groupNameUpdatedValue, setGroupNameUpdatedValue] = useState('');
   const [confirmDeleteDialog, setConfirmDeleteDialog] = useState(false);
+  const socket = getSocket();
+  const dispatch = useDispatch();
+  const { isAddMember } = useSelector(state => state.misc)
+  const myGroups = useMyGroupsQuery();
+  const groupDetails = useChatDetailsQuery({ chatId, populate: true }, { skip: !chatId })
+  //   emitEvent(req, REFETCH_CHATS, chat.members);
+  const [updateGroup, isLoadingGroupName] = useAsyncMutation(useRenameGroupMutation)
+  const [removeMember, isLoadingRemoveMember] = useAsyncMutation(useRemoveGroupMemberMutation)
+  const [deleteGroup, isLoadingDeleteGroup] = useAsyncMutation(useDeleteChatMutation);
+  const [members, setMembers] = useState([]);
+
+  const errors = [
+    { isError: myGroups.isError, error: myGroups.error },
+    { isError: groupDetails.isError, error: groupDetails.error }
+  ]
+  useError(errors);
 
   useEffect(() => {
-    if (chatId) {
-      setGroupName(`Group Name ${chatId}`);
-      setGroupNameUpdatedValue(`Group Name ${chatId}`);
-
+    if (groupDetails.data) {
+      setGroupName(groupDetails.data.chat.name);
+      setGroupNameUpdatedValue(groupDetails.data.chat.name);
+      setMembers(groupDetails.data.chat.members);
     }
     return () => {
-      setGroupNameUpdatedValue('');
       setGroupName('');
-      setIsEdit(false)
+      setGroupNameUpdatedValue('');
+      setMembers([]);
+      setIsEdit(false);
     }
-  }, [chatId]);
+  }, [groupDetails.data])
 
-  if (status === "loading") {
-    return <LoadingComponent />;
 
-  }
 
-  // If the user is not authenticated, redirect to the login page
-  if (status === "unauthenticated") {
-    router.push("/login"); // Redirect to login
-    return null; // Render nothing while redirecting
-  }
 
-  // console.log(chatId);
   const handleMobile = () => {
     setIsMobileMenuOpen(prev => !prev);
   };
 
   const handleMobileClose = () => setIsMobileMenuOpen(false);
-  const updateGroupName = () => {
-    setIsEdit(false);
-    console.log(groupNameUpdatedValue);
+  const updateGroupName = async () => {
+    const res = await updateGroup("Updating Group Name...", { chatId, name: groupNameUpdatedValue })
+    if (res.data) {
+      setIsEdit(false);
+      socket.emit(REFETCH_CHATS, { members: res.data.chat.members })
+    }
+
+
   }
   const openConfirmDeleteHandler = () => {
     setConfirmDeleteDialog(true);
@@ -74,21 +93,42 @@ const Groups = () => {
     setConfirmDeleteDialog(false);
   };
 
-  const deleteHandler = () => {
-    console.log('Group Deleted');
-    setConfirmDeleteDialog(false);
+  const deleteHandler = async () => {
+    const res = await deleteGroup("Deleting Group...", chatId);
+    if (res.data) {
+      socket.emit(REFETCH_CHATS, { members: res.data.members })
+      setConfirmDeleteDialog(false);
+      router.refresh();
+      router.replace("/groups");
+    }
 
   }
-  const removeHandler = (id) => {
+  const removeHandler = async (id) => {
+    // emitEvent(
+    //   req,
+    //   ALERT,
+    //   chat.member,
+    //   `${userThatWillRemove.name} has been removed from the group`
+    // );
+    const res = await removeMember("Removing Member...", { chatId, userId: id });
+    console.log(res.data)
+    if (res.data) {
+      socket.emit(REFETCH_CHATS, { members: res.data.members });
+      socket.emit(ALERT, { allMembers: res.data.members, message: res.data.removedMemberMemberMessage })
+    }
     console.log('removed', id);
   }
 
-  const isAddMember = false;
 
-  const openAddMemberHandler = () => { };
+  const openAddMemberHandler = () => {
+    dispatch(setIsAddMember(true))
+  };
 
 
 
+  if (status === "loading") {
+    return <LoadingComponent />;
+  }
 
   const GroupName = <>
     <Stack direction={'row'} spacing={1} alignItems={'center'} justifyContent={'center'} padding={'2rem'}>
@@ -112,7 +152,7 @@ const Groups = () => {
             transition={{ duration: 0.5, }}
           >
             <Tooltip title='Save' placement='top' arrow>
-              <IconButton onClick={updateGroupName}>
+              <IconButton onClick={updateGroupName} disabled={isLoadingGroupName}>
                 <DoneIcon />
               </IconButton>
             </Tooltip>
@@ -167,7 +207,7 @@ const Groups = () => {
             bgcolor: 'rgba(0,0,0,0.7)',
           }
         }}
-        onClick={() => { router.push('/') }}
+        onClick={() => { router.replace('/') }}
       >
         <KeyboardBackspaceIcon />
       </IconButton>
@@ -191,6 +231,12 @@ const Groups = () => {
       <Button size='large' variant='contained' startIcon={<AddIcon />} onClick={openAddMemberHandler}>Add Member</Button>
     </Stack>
   </>
+
+  // If the user is not authenticated, redirect to the login page
+  if (status === "unauthenticated") {
+    router.push("/login"); // Redirect to login
+    return null; // Render nothing while redirecting
+  }
 
   return (
     <Grid container height={'100vh'} >
@@ -217,7 +263,7 @@ const Groups = () => {
         sm={4}
         bgcolor={'bisque'}
       >
-        <GroupList myGroups={sampleChats} chatId={chatId} />
+        {myGroups.isLoading ? <ChatlistSkeleton /> : (<GroupList myGroups={myGroups?.data?.groups} chatId={chatId} />)}
       </Grid>
       <Grid item
         xs={12}
@@ -268,15 +314,15 @@ const Groups = () => {
               }}
             >
 
-              {
-                sampleUsers.map((i) => (
+              {isLoadingRemoveMember ? <CircularProgress /> :
+                (members.map((i) => (
                   <UserItem user={i} key={i._id} isAdded styling={{
                     boxShadow: '0 0 0.5rem rgba(0,0,0,0.8)',
                     padding: '1rem',
                     borderRadius: '1rem',
                     backgroundColor: 'white'
                   }} handler={removeHandler} />
-                ))
+                )))
               }
 
             </Stack>
@@ -290,7 +336,7 @@ const Groups = () => {
       }
 
       {
-        isAddMember && <AddMemberDialog />
+        isAddMember && <AddMemberDialog chatId={chatId} />
       }
 
       <Drawer sx={{
@@ -299,7 +345,7 @@ const Groups = () => {
           sm: 'none',
         }
       }} open={isMobileMenuOpen} onClose={handleMobileClose}>
-        <GroupList myGroups={sampleChats} w={'50vw'} chatId={chatId} />
+        <GroupList myGroups={myGroups?.data?.groups} w={'50vw'} chatId={chatId} />
       </Drawer>
     </Grid>
   )
@@ -308,15 +354,15 @@ const Groups = () => {
 const GroupList = ({ w = '100%', myGroups = [], chatId }) => (
   <Stack width={w}>
     {
-      myGroups.length > 0 ? (myGroups.map((group) => <GroupListItem groups={group} chatId={chatId} key={group._id} />)) : (<Typography variant='h6' sx={{ textAlign: 'center' }}>No Groups</Typography>)
+      myGroups.length > 0 ? (myGroups.map((group) => <GroupListItem groups={group} chatId={chatId} key={group.id} />)) : (<Typography variant='h6' sx={{ textAlign: 'center' }}>No Groups</Typography>)
     }
 
   </Stack>
 )
 
 const GroupListItem = ({ groups, chatId }) => {
-  const { name, avatar, _id } = groups;
-  return <Link href={`?group=${_id}`} style={{
+  const { name, avatar, id } = groups;
+  return <Link href={`?group=${id}`} style={{
     textDecoration: 'none',
     color: 'black',
     width: '100%',
@@ -325,7 +371,7 @@ const GroupListItem = ({ groups, chatId }) => {
     padding: '0.5rem',
     borderRadius: '10px 0px 10px 0px', // add rounded border
     boxShadow: '0 0 10px rgba(0, 0, 0, 0.1)',
-  }} onClick={e => { if (chatId === _id) e.preventDefault() }}>
+  }} onClick={e => { if (chatId === id) e.preventDefault() }}>
     <Stack padding={'1rem'} height={'5rem'} justifyContent={'center'} direction={'row'} alignItems={'center'}>
       <AvatarCard avatar={avatar} />
       <Typography>{name}</Typography>
