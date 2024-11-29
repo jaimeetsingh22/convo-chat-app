@@ -6,6 +6,8 @@ import Link from 'next/link'
 import AvatarCard from './AvatarCard'
 import { useDispatch } from 'react-redux'
 import { setIsMobileMenu } from '@/redux/reducers/miscSlice'
+import { motion } from "framer-motion"
+import { chatItemOnHoverAtSamesenderFalse, chatItemOnHoverAtSamesenderTrue, chatItemsOnSameSenderFalse, chatItemsOnSameSenderTrue, chatItemTextOnSameSenderFalse, chatItemTextOnSameSenderTrue } from '@/constants/color'
 
 const ChatItem = ({
     avatar = [],
@@ -14,14 +16,14 @@ const ChatItem = ({
     groupChat = false,
     sameSender,
     isOnline,
-    newMessageAlert ,
+    newMessageAlert,
     index = 0,
     handleDeleteChat
 }) => {
     const dispatch = useDispatch()
     const handleMobileClose = () => {
         dispatch(setIsMobileMenu(false));
-      }
+    }
 
     return (
         <Link
@@ -35,25 +37,39 @@ const ChatItem = ({
             onContextMenu={(e) => handleDeleteChat(e, _id, groupChat)}
             onClick={handleMobileClose}
         >
-            <div
+            <motion.div
+                initial={{ opacity: 0, y: '-100%' }}
+                whileInView={{
+                    opacity: 1,
+                    y: 0,
+                }}
+                transition={{
+                    delay: index * 0.2
+                }}
+
                 style={{
                     display: 'grid',
                     alignItems: 'center',
-                    gridTemplateColumns: '1fr 1fr 1fr',
+                    gridTemplateColumns: '2fr 2fr 1fr',
                     height: '5rem',
                     padding: '1rem',
-                    backgroundColor: sameSender ? 'black' : 'unset',
-                    color: sameSender ? 'white' : 'unset',
+                    backgroundColor: sameSender ? chatItemsOnSameSenderTrue : chatItemsOnSameSenderFalse,
+                    color: sameSender ? chatItemTextOnSameSenderTrue : chatItemTextOnSameSenderFalse,
                     justifyContent: 'space-between',
                     gap: '0.3rem',
                     position: 'relative',
                     borderRadius: '10px 0px 10px 0px', // add rounded border
                     boxShadow: '0 0 10px rgba(0, 0, 0, 0.1)',
                     transition: 'background-color 0.3s ease', // smooth transition for hover effect
+                    borderRadius: '30px',
+                    margin: '0.5rem'
                 }}
-                onMouseEnter={(e) => e.currentTarget.style.backgroundColor = sameSender ? 'rgba(0, 0, 0, 0.7)' : 'rgba(0, 0, 0, 0.1)'} // hover effect
-
-                onMouseLeave={(e) => e.currentTarget.style.backgroundColor = sameSender ? 'black' : 'unset'}
+                onMouseEnter={(e) => {
+                    e.currentTarget.style.backgroundColor = sameSender ? chatItemOnHoverAtSamesenderTrue: chatItemOnHoverAtSamesenderFalse; // Adjust hover effect
+                }}
+                onMouseLeave={(e) => {
+                    e.currentTarget.style.backgroundColor = sameSender ? chatItemsOnSameSenderTrue : chatItemsOnSameSenderFalse; // Reset to original background
+                }}
             >
                 <AvatarCard avatar={avatar} />
                 <Stack textAlign={'center'}>
@@ -70,10 +86,10 @@ const ChatItem = ({
                         height: 10,
                         borderRadius: '50%',
                         backgroundColor: 'green',
-                        justifySelf:'end'
+                        justifySelf: 'end'
                     }} />
                 }
-            </div>
+            </motion.div>
         </Link>
     )
 }

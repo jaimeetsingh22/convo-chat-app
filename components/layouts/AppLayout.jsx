@@ -3,23 +3,23 @@ import Header from "@/components/layouts/Header";
 import { LoadingComponent } from "@/components/LoadingsComponent/Loading";
 import ChatList from "@/components/specific/ChatList";
 import Profile from "@/components/specific/Profile";
-import { chatBackground } from "@/constants/color";
+import { chatListBackground, profileBackground } from "@/constants/color";
+import { NEW_MESSAGE_ALERT, NEW_REQUEST, REFETCH_CHATS } from "@/constants/events";
+import useSocketEvents from "@/hooks/useSocketEvents";
+import { increamentNotificaton, setNewMessageAlert } from "@/redux/reducers/chat";
+import { setIsDeleteMenu, setIsMobileMenu, setSelectedDeleteChat } from "@/redux/reducers/miscSlice";
 import { useMyChatsQuery } from "@/redux/RTK-query/api/api";
+import { getSocket } from "@/socket";
+import { getOrSaveFromStorage } from "@/utils/feature";
 import { CssBaseline, Drawer, Grid } from "@mui/material";
 import { useSession } from "next-auth/react";
 import { useParams, useRouter } from "next/navigation";
 import NextTopLoader from "nextjs-toploader";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import toast from "react-hot-toast";
 import { useDispatch, useSelector } from "react-redux";
+import DeleteChatMenu from "../dialogs/DeleteChatMenu";
 import ChatlistSkeleton from "../LoadingsComponent/ChatlistSkeleton";
-import { getSocket } from "@/socket";
-import { setIsMobileMenu } from "@/redux/reducers/miscSlice";
-import useSocketEvents from "@/hooks/useSocketEvents";
-import { NEW_MESSAGE_ALERT, NEW_REQUEST, REFETCH_CHATS } from "@/constants/events";
-import { increamentNotificaton, setNewMessageAlert } from "@/redux/reducers/chat";
-import { getOrSaveFromStorage } from "@/utils/feature";
-import { revalidatePath } from "next/cache";
 
 const AppLayout = ({ children }) => {
   const { chatId } = useParams();
@@ -28,14 +28,14 @@ const AppLayout = ({ children }) => {
   const dispatch = useDispatch();
   const socket = getSocket();
   const [welcomeShown, setWelcomeShown] = useState(false);
+  const [onlineUsers, setOnlineUsers] = useState([]);
   const { isLoading, data, refetch } = useMyChatsQuery();
   const isMobileMenu = useSelector(state => state.misc.isMobileMenu);
   const { newMessageAlert } = useSelector(state => state.chat);
-
+  const deleteMenuAnchorRef = useRef(null);
 
   useEffect(() => {
     if (status === "unauthenticated") {
-      toast.error("Please login!");
       router.push("/login");
     } else if (status === "authenticated" && !welcomeShown) {
       setWelcomeShown(true);
@@ -48,9 +48,10 @@ const AppLayout = ({ children }) => {
     getOrSaveFromStorage({ key: NEW_MESSAGE_ALERT, value: newMessageAlert })
   }, [newMessageAlert])
 
-  const handleDeleteChat = (e, _id, groupChat) => {
-    e.preventDefault();
-    console.log("Delete chat:", _id, groupChat);
+  const handleDeleteChat = (e, chatId, groupChat) => {
+    dispatch(setIsDeleteMenu(true));
+    dispatch(setSelectedDeleteChat({ chatId, groupChat }));
+    deleteMenuAnchorRef.current = e.currentTarget;
   };
 
   const newMessageAlertHandler = useCallback((data) => {
@@ -59,44 +60,59 @@ const AppLayout = ({ children }) => {
   }, [chatId])
 
   const newRequestHandler = useCallback((data) => {
-    if (userData?.user?.id !== data.userId) return;
+
 
     dispatch(increamentNotificaton());
-  }, [])
+  }, []);
+
   const refetchListener = useCallback((data) => {
-    console.log("refetch working ", data);
+
     refetch();
-  }, [refetch])
+    
+    if (chatId !== data.chatId) { router.push("/"); };
+
+  }, [refetch, router])
+
+
 
   const eventHandlers = {
     [NEW_MESSAGE_ALERT]: newMessageAlertHandler,
     [NEW_REQUEST]: newRequestHandler,
-    [REFETCH_CHATS]: refetchListener
+    [REFETCH_CHATS]: refetchListener,
+
   };
   const handleMobileClose = () => dispatch(setIsMobileMenu(false));
 
   useSocketEvents(socket, eventHandlers);
 
-  // console.log(socket);
+  
   if (status === "loading") return <LoadingComponent />;
   if (status === "unauthenticated") return null;
 
   return (
-    <div onContextMenu={(e) => { /* e.preventDefault(); */ }}>
+    <div onContextMenu={(e) => { e.preventDefault(); }}>
+      <NextTopLoader showSpinner={false} />
       <CssBaseline />
       <Header userData={userData} />
+      <DeleteChatMenu dispatch={dispatch} deleteMenuAnchor={deleteMenuAnchorRef} />
 
+      <Drawer open={isMobileMenu} onClose={handleMobileClose} >
+        <div style={{
+          background: chatListBackground,
+          height: "100vh"
+        }}>
 
-      <Drawer open={isMobileMenu} onClose={handleMobileClose}>
-        {isLoading ? (
-          <ChatlistSkeleton />
-        ) : (<ChatList
-          w="70vw"
-          chats={data?.chats}
-          chatId={chatId}
-          handleDeleteChat={handleDeleteChat}
-          newMessagesAlert={newMessageAlert}
-        />)}
+          {isLoading ? (
+            <ChatlistSkeleton />
+          ) : (<ChatList
+            w="70vw"
+            chats={data?.chats}
+
+            chatId={chatId}
+            handleDeleteChat={handleDeleteChat}
+            newMessagesAlert={newMessageAlert}
+          />)}
+        </div>
       </Drawer>
 
 
@@ -107,7 +123,7 @@ const AppLayout = ({ children }) => {
             display: { xs: "none", sm: "block" },
             bgcolor: "ButtonShadow",
             overflowY: "auto",
-            background: chatBackground,
+            background: chatListBackground,
           }}
           height="100%"
         >
@@ -117,7 +133,7 @@ const AppLayout = ({ children }) => {
             <ChatList
               chats={data?.chats}
               chatId={chatId}
-              onlineUsers={["1", "2", "3", "4"]}
+
               newMessagesAlert={newMessageAlert}
               handleDeleteChat={handleDeleteChat}
             />
@@ -130,7 +146,7 @@ const AppLayout = ({ children }) => {
 
         <Grid
           md={4} lg={3} height="100%"
-          sx={{ display: { xs: "none", md: "block" }, padding: "2rem", bgcolor: "rgba(0,0,0,0.8)" }}
+          sx={{ display: { xs: "none", md: "block" }, padding: "2rem", bgcolor: profileBackground }}
         >
           <Profile data={userData} />
         </Grid>

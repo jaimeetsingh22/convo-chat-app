@@ -8,19 +8,19 @@ export async function GET(req, { params }) {
   try {
     const session = await auth();
     const user = session?.user;
-    if (!user) {
-      return NextResponse.json(
-        { message: "You need to Login First to access this" },
-        { status: 401 }
-      );
-    }
+    // if (!user) {
+    //   return NextResponse.json(
+    //     { message: "You need to Login First to access this" },
+    //     { status: 401 }
+    //   );
+    // }
 
     // Connect to the database
     await connectToDB();
     const myId = user.id;
 
     const id = params["id"][0];
-    console.log(params);
+    
     const query = req.nextUrl.searchParams;
     const page = query.get("page") || 1;
     const chatId = id;

@@ -1,5 +1,6 @@
+import GroupsLoadingSkeleton from '@/components/LoadingsComponent/GroupLoading';
 import dynamic from 'next/dynamic';
-const Groups = dynamic(() => import('./Groups'), { ssr: false, loading: () => <h1>Loading...</h1> });
+const Groups = dynamic(() => import('./Groups'), { ssr: false, loading: () => <GroupsLoadingSkeleton /> });
 
 
 const page = () => {

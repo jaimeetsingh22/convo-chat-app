@@ -12,14 +12,16 @@ const AvatarCard = ({ avatar = [], max = 4, top = "1rem" }) => {
                         
                             <Avatar key={index} src={transformImage(item?.avatar?.url || item)} alt={item}
                                 sx={{
+                                    
                                     width: "3rem",
                                     height: "3rem",
                                     position: 'absolute',
                                     left: {
                                         xs: `${0.5 + index}rem`,
-                                        sm: `${index}rem`
+                                        sm: `${index + 1}rem`
                                     },
                                     top: top,
+                                    
                                 }} />
                         )
                     }

@@ -11,7 +11,7 @@ import { useAvailableFriendsQuery, useNewGroupMutation } from '@/redux/RTK-query
 import { useAsyncMutation, useError } from '@/hooks/hook';
 import toast from 'react-hot-toast';
 import { getSocket } from '@/socket';
-import { ALERT } from '@/constants/events';
+import { ALERT, REFETCH_CHATS } from '@/constants/events';
 
 const NewGroup = () => {
   const groupName = useInputValidation("");
@@ -32,9 +32,10 @@ const NewGroup = () => {
     const res = await newGroup("Creating Group...", { name: groupName.value, members: selectedMembers });
     if (res.data) {
       // emitEvent(req, ALERT, allMembers, `Welcome to ${name} group`);      
-      const message = `Welcome to ${groupName.value} group`;
-      console.log(message);
+      const message = `You are Added to ${groupName.value} group`;
+
       socket.emit(ALERT, { allMembers: selectedMembers, message });
+      socket.emit(REFETCH_CHATS, { members: selectedMembers })
     }
     handleClose();
   };

@@ -133,9 +133,7 @@ export async function DELETE(req, { params }) {
   const myId = user.id;
 
   const id = params["id"][0];
-  console.log(params);
 
-  console.log(id);
   try {
     return await deleteChatById(req, id, myId);
   } catch (error) {
@@ -207,7 +205,7 @@ async function deleteChatById(req, id, myId) {
       );
     }
 
-    if (!chat.groupChat && !chat.members?.include(myId.toString())) {
+    if (!chat.groupChat && !chat.members?.includes(myId.toString())) {
       return NextResponse.json(
         { message: "you are not allowed to delete chat" },
         {

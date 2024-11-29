@@ -34,8 +34,8 @@ const AddMemberDialog = ({ chatId }) => {
         const res = await addMembers("Adding Members...", { chatId, members: selectedMembers });
         // console.log(res.data);
         if (res.data) {
-            socket.emit(ALERT, { allMembers: res.data.members, message: res.data.messageForAlert })
-            socket.emit(REFETCH_CHATS, { members: res.data.members })
+            socket.emit(ALERT, { allMembers: res.data.members, message: res.data.messageForAlert,chatId:res.data.chatId })
+            socket.emit(REFETCH_CHATS, { members: res.data.members,chatId })
             closeHandler();
         }
     };

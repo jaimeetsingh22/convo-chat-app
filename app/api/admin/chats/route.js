@@ -7,8 +7,7 @@ import { NextResponse } from "next/server";
 export async function GET(req) {
   // a common error getting in the admin api i will handle it later
   //  "error": "Schema hasn't been registered for model \"User\".\nUse mongoose.model(name, schema)"
-  // this is solved by adding the code import { User } from "@/models/user"; because this user model should be registered before used because the chat model use the user model of to find the user data so that is why it is used so that it registered before hitting it 
-
+  // this is solved by adding the code import { User } from "@/models/user"; because this user model should be registered before used because the chat model use the user model of to find the user data so that is why it is used so that it registered before hitting it
 
   if (isAuthenticated(req) !== true) {
     const authResult = isAuthenticated(req);
@@ -42,7 +41,7 @@ export async function GET(req) {
             avatar: creator?.avatar?.url || "",
           },
           totalMembers: members.length,
-          totalMessagesCount,
+          totalMessagesCount: totalMessagesCount || 0,
         };
       })
     );

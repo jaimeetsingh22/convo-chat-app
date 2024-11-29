@@ -58,9 +58,14 @@ export const DELETE = async (req, { params }) => {
     await chat.save();
     console.log(me.name);
     emitEvent(req, ALERT, chat.members, `${me.name} has left the group`);
-
+    const alertMessage = `${me.name} has left the group`;
     return NextResponse.json(
-      { message: "Chat leaved Successfully" },
+      {
+        message: "Group leaved Successfully",
+        members: chat.members,
+        alertMessage,
+        chatId
+      },
       { status: 200 }
     );
   } catch (error) {

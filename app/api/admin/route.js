@@ -1,16 +1,15 @@
 import jwt from "jsonwebtoken";
 import { NextResponse } from "next/server";
 
-function isAuthenticated(req) {
+export async function GET(req) {
   const cookie = req.cookies.get("convo-admin-token");
   if (!cookie) {
-    return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
+    return NextResponse.json({ message: "Unauthorized", admin: false, }, { status: 401 });
   }
   const token = req.cookies.get("convo-admin-token").value; // Or use the auth token based on your app's implementation
-  // console.log(token)
   if (!token) {
     return NextResponse.json(
-      { message: "Unauthorized, please log in" },
+      { message: "Unauthorized, please log in", admin: false, },
       { status: 401 }
     );
   }
@@ -24,22 +23,29 @@ function isAuthenticated(req) {
         {
           success: false,
           message: "Not autheriged admin",
+          admin: false,
         },
         { status: 401 }
       );
     }
 
-    return true;
+    return NextResponse.json(
+      {
+        success: true,
+        admin: true,
+      },
+      { status: 200 }
+    );
   } catch (error) {
     return NextResponse.json(
       {
         success: false,
         message: "Not autheriged admin",
+
         error: error.message,
+        admin: false,
       },
       { status: 401 }
     );
   }
 }
-
-export default isAuthenticated;

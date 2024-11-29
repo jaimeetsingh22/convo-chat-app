@@ -66,13 +66,13 @@ const FileMenu = ({ anchorE1, chatId }) => {
       });
       const res = await sendAttachments(myForm);
       if (res.data) {
-      toast.success("File sent successfully", { id: toastId });
-       console.log(res.data)
+        toast.success("File sent successfully", { id: toastId });
+        console.log(res.data)
         socket.emit(NEW_ATTACHMENT, {
           chatId,
-          members:res.data.members,
-          message:res.data.message,
-        })        
+          members: res.data.members,
+          message: res.data.message,
+        })
         // socket.emit(NEW_MESSAGE,)
 
       } else {

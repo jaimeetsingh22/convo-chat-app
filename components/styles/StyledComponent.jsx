@@ -1,3 +1,4 @@
+import { messageTypingInputBackgroundColor } from "@/constants/color";
 import { styled } from "@mui/material";
 
 
@@ -16,12 +17,12 @@ export const VisuallyHiddenInput = styled("input")({
 export const InputBox = styled("input")({
     width: '100%',
     height: '100%',
-    // border: '1px solid black',
+    // border: '2px red white',
     border: 'none',
     outline: 'none',
     padding: '0 3rem',
     borderRadius: '2rem',
-    backgroundColor: 'rgba(240,240,240,1)'
+    backgroundColor: messageTypingInputBackgroundColor,
 })
 
 export const SearchField = styled("input")({

@@ -73,7 +73,7 @@ export async function PUT(req) {
     await Promise.all([
       Chat.create({
         members,
-        name: `${request.receiver.name} and ${request.sender.name}`,
+        name: `${request.receiver?.name} and ${request.sender?.name}`,
       }),
       request.deleteOne(),
     ]);

@@ -26,10 +26,9 @@ const Search = () => {
     const res = await sendFriendRequest("Sending Friend Request...", { userId: id });
     console.log("add friend handler: ",res);
     
-    if (res.data && res.data.success) {
+    if (res.data) {
       // Friend request was successful, emit the event
       socket.emit(NEW_REQUEST, { userId: id });
-      console.log("emmiting event");
     } else if (res.error) {
       console.log("Friend request failed:", res.error);
       // Optionally, handle the case where the friend request was already sent

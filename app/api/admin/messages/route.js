@@ -10,22 +10,23 @@ export async function GET(req) {
     if (authResult instanceof NextResponse) {
       return authResult;
     }
-  }  try {
+  }
+  try {
     await connectToDB();
 
     const messages = await Message.find({})
       .populate("sender", "name avatar")
-      .populate("chat", "goupChat");
+      .populate("chat", "groupChat");
 
-    const transformedMessages = messages.map(
+    const transformedMessages = messages?.map(
       ({ content, attachments, _id, sender, chat, createdAt }) => ({
         _id,
         content,
         attachments,
-        chat: chat._id,
-        groupChat: chat.groupChat,
+        chat: chat?._id,
+        groupChat: chat?.groupChat,
         sender: {
-          _id: sender._id,
+          _id: sender?._id,
           name: sender.name,
           avatar: sender.avatar.url,
         },
@@ -33,7 +34,8 @@ export async function GET(req) {
     );
     return NextResponse.json({
       success: true,
-      chats: transformedMessages,
+      messages: transformedMessages,
+      // chats: messages,
     });
   } catch (error) {
     console.log(error.message);

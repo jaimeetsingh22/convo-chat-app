@@ -101,6 +101,7 @@ export const PUT = async (req, res) => {
             ? `${existingMembers} are already present in the group and ${allUsersName} are added to the group`
             : `${allUsersName} has been added in this group`
         }`,
+        chatId,
       },
       { status: 200 }
     );

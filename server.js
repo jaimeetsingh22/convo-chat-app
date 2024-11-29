@@ -11,6 +11,8 @@ import {
   REFETCH_CHATS,
   START_TYPING,
   STOP_TYPING,
+  USER_OFFLINE,
+  USER_ONLINE,
 } from "./constants/events.js";
 import { getSocketMembers } from "./lib/helper.js";
 import { Message } from "./models/message.js";
@@ -27,6 +29,7 @@ const app = next({ dev, hostname, port });
 const handler = app.getRequestHandler();
 
 export const userSocketIDs = new Map();
+const onlineUsers = new Set();
 
 app.prepare().then(() => {
   const httpServer = createServer(handler);
@@ -45,7 +48,8 @@ app.prepare().then(() => {
     const user = socket.user;
     userSocketIDs.set(user.id.toString(), socket.id); // for every new connections
     console.log(userSocketIDs);
-
+    onlineUsers.add(user.id.toString());
+    io.emit(USER_ONLINE, Array.from(onlineUsers));
     socket.on(NEW_MESSAGE, async ({ chatId, members, message }) => {
       const messageForRealTime = {
         content: message,
@@ -76,9 +80,9 @@ app.prepare().then(() => {
         console.log(error.message);
       }
     });
-    socket.on(ALERT, ({ allMembers, message }) => {
+    socket.on(ALERT, ({ allMembers, message, chatId }) => {
       const membersSockets = getSocketMembers(allMembers);
-      socket.to(membersSockets).emit(ALERT, { message });
+      socket.to(membersSockets).emit(ALERT, { message, allMembers, chatId });
     });
     socket.on(START_TYPING, ({ members, chatId }) => {
       const membersSockets = getSocketMembers(members);
@@ -112,19 +116,21 @@ app.prepare().then(() => {
     });
     socket.on(NEW_REQUEST, ({ userId }) => {
       const userSocket = getSocketMembers([userId]);
-      console.log("userId socket Id: ", userSocket);
-
+      // console.log("userId socket Id: ", userSocket);
+      console.log("userSocket after emiting new", userSocket);
       io.to(userSocket).emit(NEW_REQUEST, { userId });
     });
-    socket.on(REFETCH_CHATS, ({ members }) => {
+    socket.on(REFETCH_CHATS, ({ members, chatId }) => {
       const membersSockets = getSocketMembers(members);
       console.log("members sockets", membersSockets);
-      socket.to(membersSockets).emit(REFETCH_CHATS, { members });
+      io.emit(REFETCH_CHATS, { members, chatId });
     });
 
     socket.on("disconnect", () => {
       console.log("User disconnected");
       userSocketIDs.delete(user.id.toString());
+      onlineUsers.delete(user.id.toString()); // Remove user from the set
+      socket.broadcast.emit(USER_OFFLINE, Array.from(onlineUsers)); // Notify all clients about updated online users
     });
   });
 

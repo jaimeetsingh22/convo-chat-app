@@ -1,8 +1,10 @@
 'use client'
-import { useError } from '@/hooks/hook';
+import { REFETCH_CHATS } from '@/constants/events';
+import { useAsyncMutation, useError } from '@/hooks/hook';
 import { resetNotification } from '@/redux/reducers/chat';
 import { setIsNotification } from '@/redux/reducers/miscSlice';
 import { useAcceptFriendRequestMutation, useGetNotificationQuery } from '@/redux/RTK-query/api/api';
+import { getSocket } from '@/socket';
 import { Check, Close } from '@mui/icons-material';
 import { Avatar, Button, Dialog, DialogTitle, ListItem, Stack, Tooltip, Typography } from '@mui/material';
 import { motion } from 'framer-motion';
@@ -15,22 +17,15 @@ const Notification = () => {
   const dispatch = useDispatch();
   const { isNotification } = useSelector(state => state.misc)
   const { isLoading, isError, error, data } = useGetNotificationQuery();
-  const [acceptRequest] = useAcceptFriendRequestMutation();
-
-
+  const [acceptRequest, isLoadingacceptRequest] = useAsyncMutation(useAcceptFriendRequestMutation);
+  console.log()
+  const socket = getSocket();
   const friendRequestHandler = async ({ _id, accept }) => {
     dispatch(resetNotification())
-    try {
-      const res = await acceptRequest({ requestId: _id, accept });
-
-      if (res.data?.success) {
-
-        dispatch(setIsNotification(false));
-        toast.success(res.data?.message);
-      } else toast.error(res.data?.error || "Something went wrong!");
-
-    } catch (error) {
-      console.log(error);
+    const res = await acceptRequest(accept ? "Accepting Request...":"Rejecting Request...", { requestId: _id, accept });
+    if (res.data?.success) {
+      socket.emit(REFETCH_CHATS, { members: [_id] });
+      dispatch(setIsNotification(false));
     }
   };
 
@@ -63,7 +58,7 @@ const Notification = () => {
           isLoading ? <div>Loading...</div> : <>
             {data?.allRequests.length > 0 ? (
               data?.allRequests?.map(({ _id, sender }) => (
-                <NotificationItem _id={_id} key={_id} handler={friendRequestHandler} sender={sender} />
+                <NotificationItem _id={_id} key={_id} loading={isLoadingacceptRequest} handler={friendRequestHandler} sender={sender} />
               ))
             ) : (
               <Typography textAlign={'center'}> 0 Notifications</Typography>
@@ -75,7 +70,7 @@ const Notification = () => {
   );
 };
 
-const NotificationItem = memo(({ _id, sender, handler }) => (
+const NotificationItem = memo(({ _id, sender, handler,loading }) => (
   <motion.div
     initial={{ opacity: 0, x: -50 }}
     animate={{ opacity: 1, x: 0 }}
@@ -115,8 +110,8 @@ const NotificationItem = memo(({ _id, sender, handler }) => (
           }}
           spacing={1}
         >
-          <Button onClick={() => handler({ _id, accept: true })}>Accept</Button>
-          <Button color="error" onClick={() => handler({ _id, accept: false })}>
+          <Button onClick={() => handler({ _id, accept: true })} disabled={loading}>Accept</Button>
+          <Button color="error" onClick={() => handler({ _id, accept: false })} disabled={loading}>
             Reject
           </Button>
         </Stack>

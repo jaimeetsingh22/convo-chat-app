@@ -7,7 +7,7 @@ const page = () => {
   return (
     <>
       <div style={{
-        background: "url(https://media.tenor.com/EYo8uUHePR0AAAAi/borboletas-butterflies.gif)",
+        background: "grey",
       }}>
         <Login />
       </div>

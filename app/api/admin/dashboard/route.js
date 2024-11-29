@@ -11,7 +11,6 @@ export async function GET(req) {
 
     if (isAuthenticated(req) !== true) {
       const authResult = isAuthenticated(req);
-  
       if (authResult instanceof NextResponse) {
         return authResult;
       }
@@ -46,7 +45,6 @@ export async function GET(req) {
     });
     
     const messages = new Array(7).fill(0); // this method will create an array of length 7 and fill method will fill 0 as elements
-    console.log(last7daysMessages);
     
     const dayInMilliseconds = 1000 * 60 * 60 * 24;
 

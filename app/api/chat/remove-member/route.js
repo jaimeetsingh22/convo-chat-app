@@ -76,6 +76,7 @@ export const DELETE = async (req, res) => {
         message: "Member removed Successfully",
         removedMemberMemberMessage,
         members: allChatMembers,
+        chatId
       },
       { status: 200 }
     );

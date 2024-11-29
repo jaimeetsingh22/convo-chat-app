@@ -1,4 +1,5 @@
 'use client'
+import { profileCardCaptionTextColor, profileCardTextColor, profileIconsColor } from '@/constants/color'
 import { transformImage } from '@/utils/feature'
 import { CalendarMonth as CalendarIcon, Face as FaceIcon, AlternateEmail as UsernameIcon } from '@mui/icons-material'
 import { Avatar, Stack, Typography } from '@mui/material'
@@ -22,13 +23,13 @@ const Profile = ({ data }) => {
                         marginBottom: '1rem',
                         border: '5px solid white'
                     }}
-                    src={transformImage(avatar?.url,400)}
+                    src={transformImage(avatar?.url, 400)}
                 />
             </a>
             <ProfileCard text={bio} heading={'Bio'} />
-            <ProfileCard text={username} Icon={<UsernameIcon style={{ marginBottom: '1rem' }} />} heading={'Username'} />
-            <ProfileCard text={name} Icon={<FaceIcon style={{ marginBottom: '1rem' }} />} heading={'Name'} />
-            <ProfileCard text={moment(createdAt).fromNow()} Icon={<CalendarIcon style={{ marginBottom: '1rem' }} />} heading={'Joined'} />
+            <ProfileCard text={username} Icon={<UsernameIcon style={{ marginBottom: '1rem', color: profileIconsColor }} />} heading={'Username'} />
+            <ProfileCard text={name} Icon={<FaceIcon style={{ marginBottom: '1rem', color: profileIconsColor }} />} heading={'Name'} />
+            <ProfileCard text={moment(createdAt).fromNow()} Icon={<CalendarIcon style={{ marginBottom: '1rem', color: profileIconsColor }} />} heading={'Joined'} />
         </Stack>
     )
 }
@@ -38,10 +39,10 @@ const ProfileCard = ({ text, Icon, heading }) => (
         sx={{ width: '100%' }}>
         {Icon && Icon}
         <Stack>
-            <Typography variant='body1'>
+            <Typography variant='body1' color={profileCardTextColor}>
                 {text}
             </Typography>
-            <Typography color={'gray'} variant='caption'>
+            <Typography color={profileCardCaptionTextColor} variant='caption'>
                 {heading}
             </Typography>
         </Stack>

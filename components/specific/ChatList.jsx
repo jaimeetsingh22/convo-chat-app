@@ -2,16 +2,18 @@
 import { Stack } from '@mui/material'
 import React from 'react'
 import ChatItem from '../shared/ChatItem'
+import { useSelector } from 'react-redux'
 
 const ChatList = ({
     w = '100%',
     router,
     chats = [],
     chatId,
-    onlineUsers = [],
+    // onlineUsers = [],
     newMessagesAlert,
     handleDeleteChat,
 }) => {
+    const {onlineUsers} = useSelector((state) => state.chat);
     return (
         <Stack width={w} direction={'column'}>
             {
@@ -20,7 +22,7 @@ const ChatList = ({
                     const newMessageAlert = newMessagesAlert.find(
                         ({ chatId }) => chatId === id
                     )
-                    const isOnline = members?.some((member) => onlineUsers.includes(id));
+                    const isOnline = members?.some((member) => onlineUsers.includes(member));
                     return <ChatItem key={id}
                         newMessageAlert={newMessageAlert}
                         isOnline={isOnline}

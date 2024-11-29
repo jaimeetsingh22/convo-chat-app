@@ -1,8 +1,9 @@
 'use client'
 
+import { useFetchData } from "6pp";
 import RenderAttachment from "@/components/shared/RenderAttachment";
 import Table from "@/components/shared/Table";
-import { dashBoardData } from "@/constants/sampleData";
+import { useError } from "@/hooks/hook";
 import { fileFormat, transformImage } from "@/utils/feature";
 import { Avatar, Box, Stack, Typography } from "@mui/material";
 import moment from "moment";
@@ -11,7 +12,7 @@ import { useEffect, useState } from "react";
 
 const columns = [
   {
-    field: "id",
+    field: "_id",
     headerName: 'ID',
     headerClassName: "table-header",
     width: 200,
@@ -24,12 +25,12 @@ const columns = [
     renderCell: (params) => {
       const { attachments } = params.row;
 
-      return attachments.length > 0 ? attachments.map((i) => {
+      return attachments.length > 0 ? attachments.map((i, idx) => {
         const url = i.url;
         const file = fileFormat(url);
 
         return (
-          <Box>
+          <Box key={idx}>
             <a href={url} download={true} target="_blank" style={{ color: "black" }}>
               {
                 RenderAttachment(file, url)
@@ -85,19 +86,29 @@ const columns = [
 
 const Messages = () => {
   const [rows, setRows] = useState([]);
+
+
+  const { data, loading, error } = useFetchData("/api/admin/messages", "messages-stats", []);
+  const { messages } = data || {};
+  console.log(data);
+
+  useError([{ isError: error, error: error }])
+
   useEffect(() => {
-    setRows(dashBoardData.messages.map((i) => ({
-      ...i,
-      id: i._id,
-      sender: {
-        name: i.sender.name,
-        avatar: transformImage(i.sender.avatar, 50)
-      },
-      createdAt: moment(i.createdAt).format('DD/MM/YYYY, h:mm a'),
-    }))
-    );
-  }, [])
-  return (
+    if (data) {
+      setRows(messages.map((i) => ({
+        ...i,
+        id: i._id,
+        sender: {
+          name: i.sender.name,
+          avatar: transformImage(i.sender.avatar, 50)
+        },
+        createdAt: moment(i.createdAt).format('DD/MM/YYYY, h:mm a'),
+      }))
+      );
+    }
+  }, [data])
+  return !data ? <h2>Loading...</h2> :(
     <Table heading={'All Messages'} row={rows} columns={columns} rowHeight={200} />
   )
 }

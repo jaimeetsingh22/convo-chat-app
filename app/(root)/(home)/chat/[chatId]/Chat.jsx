@@ -1,23 +1,25 @@
 'use client'
 import { useInfiniteScrollTop } from '6pp';
+import Loading from '@/app/(root)/(home)/loading';
 import FileMenu from '@/components/dialogs/FileMenu';
 import MessageComponent from '@/components/shared/MessageComponent';
+import TypingLayout from '@/components/specific/TypingLayout';
 import { InputBox } from '@/components/styles/StyledComponent';
+import { attachFileIconColor, chatMessagesBackgroundColor, sendButtonColor, sendMessageFormBackgroundColor } from '@/constants/color';
 import { ALERT, NEW_ATTACHMENT, NEW_MESSAGE, START_TYPING, STOP_TYPING } from '@/constants/events';
 import { useError } from '@/hooks/hook';
 import useSocketEvents from '@/hooks/useSocketEvents';
+import { removeNewMessageAlert } from '@/redux/reducers/chat';
 import { setIsFileMenu } from '@/redux/reducers/miscSlice';
 import { useChatDetailsQuery, useGetMessagesQuery } from '@/redux/RTK-query/api/api';
 import { getSocket } from '@/socket';
 import { AttachFile as AttachFileIcon, SendOutlined as SendIcon } from '@mui/icons-material';
-import { Button, Dialog, DialogActions, DialogContent, IconButton, Stack, Typography } from '@mui/material';
+import { IconButton, Stack } from '@mui/material';
 import { useSession } from 'next-auth/react';
 import { useParams, useRouter } from 'next/navigation';
 import { useCallback, useEffect, useRef, useState } from 'react';
+import toast from 'react-hot-toast';
 import { useDispatch } from 'react-redux';
-import Loading from '@/app/(root)/(home)/loading';
-import { removeNewMessageAlert } from '@/redux/reducers/chat';
-import TypingLayout from '@/components/specific/TypingLayout';
 import { v4 } from 'uuid';
 
 
@@ -39,11 +41,12 @@ const Chat = () => {
   const containerRef = useRef(null);
 
   const socket = getSocket();
-
+  // console.log(chatId)
   const chatDetails = useChatDetailsQuery({ chatId, skip: !chatId });
   const oldMessagesChunk = useGetMessagesQuery({ chatId, page });
   const { data: oldMessages, setData: setOldMessages } = useInfiniteScrollTop(containerRef, oldMessagesChunk.data?.totalPages, page, setPage, oldMessagesChunk.data?.messages);
   const members = chatDetails?.data?.chat?.members;
+
 
   const errors = [{ isError: chatDetails.isError, error: chatDetails.error },
   { isError: oldMessagesChunk.isError, error: oldMessagesChunk.error }
@@ -95,13 +98,19 @@ const Chat = () => {
   }
 
   const newMessagesListener = useCallback((data) => {
+    // console.log(data.chatId,chatId)
+    // console.log(Boolean(data.chatId !== chatId));
     if (data.chatId !== chatId) return;
     setMessages((prevMessages) => [...prevMessages, data?.message]);
   }, [chatId]);
-  const alertListener = useCallback(({ message }) => {
-    // if (data.chatId !== chatId) return;
+  const alertListener = useCallback((data) => {
+    // const activeMembers = data.allMembers.find(i => user.user.id.toString() === i.toString());
+    toast.success(data.message)
+
+    if (data.chatId !== chatId) return;
+
     const messageForAlert = {
-      content: message,
+      content: data.message,
       _id: v4(),
       sender: {
         _id: "asldkjfkjdvksdjf",
@@ -145,11 +154,10 @@ const Chat = () => {
     }
   }, [messages]);
 
-  // useEffect(() => {
-  //   if (!chatDetails.data?.chat) {
-  //     return router.replace("/");
-  //   }
-  // }, [chatDetails.data])
+
+  useEffect(() => {
+    if (chatDetails.isError) return router.push("/");
+  }, [chatDetails])
 
 
   // Auto-scroll to the bottom on new message
@@ -168,7 +176,7 @@ const Chat = () => {
         padding={'1rem'}
         spacing={'1rem'}
         height={'90%'}
-        bgcolor={'rgba(240,240,240,0.3)'}
+        bgcolor={chatMessagesBackgroundColor}
         sx={{
           overflowX: 'hidden',
           overflowY: 'auto', '&::-webkit-scrollbar': {
@@ -197,7 +205,7 @@ const Chat = () => {
       }}
         onSubmit={SendMessageSubmitHandler}
       >
-        <Stack direction={'row'} height={'100%'} alignItems={'center'} padding={'1rem'} position={'relative'}>
+        <Stack direction={'row'} height={'100%'} alignItems={'center'} padding={'1rem'} position={'relative'} sx={{ backgroundColor: sendMessageFormBackgroundColor }}>
           <IconButton sx={{
             position: 'absolute',
             left: '1.5rem',
@@ -205,13 +213,13 @@ const Chat = () => {
           }}
             onClick={openFileHandler}
           >
-            <AttachFileIcon />
+            <AttachFileIcon sx={{ color: attachFileIconColor }} />
           </IconButton >
           <InputBox placeholder='Type your message here...' value={message} onChange={messagOnChangeHandler} />
           <IconButton sx={{
             color: 'white',
             marginLeft: '0.5rem',
-            bgcolor: 'primary.main',
+            bgcolor: sendButtonColor,
             padding: '0.5rem',
             "&:hover": {
               bgcolor: 'primary.dark',

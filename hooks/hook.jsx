@@ -1,20 +1,26 @@
+import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react"
 import toast from "react-hot-toast"
 
 const useError = (errors = []) => {
     const [hasShownWelcome, setHasShownWelcome] = useState(false);
-
+    const router = useRouter();
     useEffect(() => {
-
+      // console.log(errors)
         if (errors.length > 0) {
             // console.log(errors.length)
+            
             errors.forEach(({ error, isError, fallback }) => {
+              // console.log(error?.data?.message);
                 // console.log(isError)
                 //if(isError) falback();
                 if (!hasShownWelcome && isError) {
-                    toast.error(error?.data?.errors?.message || "Something Went Wrong!", {
+                    toast.error(error?.data?.message || "Something Went Wrong!", {
                         position: "bottom-center"
                     });
+                    if(error?.data?.message ==="Chat not found"){
+                      router.push("/")
+                    }
                     setHasShownWelcome(true);
                 }
             })

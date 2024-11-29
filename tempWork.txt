@@ -20,7 +20,7 @@
   }, [socket, chatId]);
 
 
-  server.js 
+  server.js code for room based approach
 
   import next from "next";
 import { createServer } from "node:http";
@@ -117,10 +117,34 @@ app.prepare().then(() => {
 });
 
 
+done 
+
+{
+  
+currently working on the admin panel 
+proper loading for every component 
+after completing this, i will work on online user in the chat list
+add online offline when the user opens the app 
+also seen feature the person seened the message
+i will add propor working in the login or the authentication on the admin panel i will archieve it using cookie from next header
+
+after creating the chat app without working on admin panel check the proper functionality of the convo chat app only 
+improving the appearance and colors of the app layouts 
+contoll the emiting events for non related chats will check it
+
+fixing the workflow of all the layouts and loadings also will check the speed of rendering and loadings 
+will create the error and global error pages 
+there is still having some errors so i'll fix it later like the bug when opening manage groups page
+fix the authentication of the admin page and proper working
+}
+
 to do work 
-refetching chats when created a group 
-fixing the redirects working in the groups when the group is deleted then the page is redirected to the /groups page
-contoll the emiting events for non related chats
+
+message seen feature
 make loading component for each pages like home,groups and loading
 improve the UI for interactive interface
 
+maybe i will ad profile button in small devices
+
+add chatGpt and Gemini chat list in that chat app
+also the chats in the chatgpt and in the gemini will be deleted after 15 days for managing the space in the database it is written in the top in small text that the chat will be completely deleted after 15 days

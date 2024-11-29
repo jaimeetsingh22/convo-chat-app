@@ -3,6 +3,8 @@ import { Box, Typography } from '@mui/material';
 import moment from 'moment';
 import React, { memo } from 'react'
 import RenderAttachment from './RenderAttachment';
+import { motion } from "framer-motion"
+import { notSameSenderMessageBackgroundColor, notSameSendersMessageContentTextColor, notSameSendersNameTextColor, sameSenderMessageBackgroundColor, SameSendersMessageContentTextColor, timeAgoTextColor } from '@/constants/color';
 
 const MessageComponent = ({ message, user }) => {
     const { sender, attachments = [], content, createdAt } = message;
@@ -10,10 +12,12 @@ const MessageComponent = ({ message, user }) => {
     const timeAgo = moment(createdAt).fromNow();
 
     return (
-        <div
+        <motion.div
+            initial={{ opacity: 0, x: "-100%" }}
+            whileInView={{ opacity: 1, x: 0 }}
             style={{
                 alignSelf: sameSender ? 'flex-end' : 'flex-start',
-                backgroundColor: sameSender ? 'cyan' : 'white',
+                backgroundColor: sameSender ? sameSenderMessageBackgroundColor : notSameSenderMessageBackgroundColor,
                 color: 'black',
                 borderRadius: sameSender ? '10px 20px 0px 20px' : '0px 20px 10px 20px',
                 padding: '0.5rem',
@@ -21,13 +25,13 @@ const MessageComponent = ({ message, user }) => {
             }}
         >
             {
-                !sameSender && (<Typography color={'#2694ab'} fontWeight={'600'} variant='caption'>
+                !sameSender && (<Typography color={notSameSendersNameTextColor} fontWeight={'600'} variant='caption'>
                     {sender.name}
                 </Typography>)
             }
 
             {
-                content && <Typography>{content}</Typography>
+                content && <Typography color={sameSender ? SameSendersMessageContentTextColor : notSameSendersMessageContentTextColor}>{content}</Typography>
             }
 
 
@@ -48,9 +52,9 @@ const MessageComponent = ({ message, user }) => {
                 )
             }
 
-            <Typography variant='caption' color={'text.secondary'} >{timeAgo}</Typography>
+            <Typography variant='caption' color={timeAgoTextColor} >{timeAgo}</Typography>
 
-        </div>
+        </motion.div>
     )
 }
 

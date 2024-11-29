@@ -34,3 +34,14 @@ You can check out [the Next.js GitHub repository](https://github.com/vercel/next
 The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
 
 Check out our [Next.js deployment documentation](https://nextjs.org/docs/deployment) for more details.
+
+Features
+Current Features
+Real-Time Chat: Users can send and receive messages in real-time.
+Custom Themes: Offers multiple elegant color themes for a personalized chat experience.
+Authentication: Secure login system to protect user data.
+Upcoming Features
+Message Seen Feature: Currently unavailable, but it will be included in the next update.
+AI Chats: The next update will introduce ChatGPT AI Chat and Gemini AI Chats, enhancing your communication experience with intelligent and interactive responses.
+
+Stay tuned for the exciting new features coming in the next update! 🎉

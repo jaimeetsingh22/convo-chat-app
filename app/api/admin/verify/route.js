@@ -13,6 +13,7 @@ export async function POST(req) {
         }
       );
     }
+    
 
     const adminSecreteKey = process.env.ADMIN_SECRETE_KEY || ".adgjmptw";
 
@@ -44,7 +45,7 @@ export async function POST(req) {
     response.cookies.set("convo-admin-token", token, {
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",
-      maxAge: 1000 * 60 * 20, // 20 minutes
+      maxAge: 60 * 15, // 5 minutes
       path: "/", // Cookie accessible on all routes
       sameSite: "lax",
     });

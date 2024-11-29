@@ -1,23 +1,24 @@
 'use client'
+import ChatlistSkeleton from '@/components/LoadingsComponent/ChatlistSkeleton'
+import GroupsLoadingSkeleton from '@/components/LoadingsComponent/GroupLoading'
+import { LoadingComponent } from '@/components/LoadingsComponent/Loading'
 import AvatarCard from '@/components/shared/AvatarCard'
-import { motion } from 'framer-motion'
+import UserItem from '@/components/shared/UserItem'
+import { chatBackground, chatListBackground } from '@/constants/color'
+import { ALERT, REFETCH_CHATS } from '@/constants/events'
+import { useAsyncMutation, useError } from '@/hooks/hook'
+import { setIsAddMember } from '@/redux/reducers/miscSlice'
+import { useChatDetailsQuery, useDeleteChatMutation, useMyGroupsQuery, useRemoveGroupMemberMutation, useRenameGroupMutation } from '@/redux/RTK-query/api/api'
+import { getSocket } from '@/socket'
 import { Add as AddIcon, Delete as DeleteIcon, Done as DoneIcon, DriveFileRenameOutline as DriveFileRenameOutlineIcon, KeyboardBackspace as KeyboardBackspaceIcon, Menu as MenuIcon } from '@mui/icons-material'
 import { Backdrop, Box, Button, CircularProgress, Drawer, Grid, IconButton, Stack, TextField, Tooltip, Typography } from '@mui/material'
+import { motion } from 'framer-motion'
+import { useSession } from 'next-auth/react'
+import dynamic from 'next/dynamic'
 import Link from 'next/link'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { useEffect, useState } from 'react'
-import dynamic from 'next/dynamic'
-import UserItem from '@/components/shared/UserItem'
-import { chatBackground } from '@/constants/color'
-import { useSession } from 'next-auth/react'
-import { LoadingComponent } from '@/components/LoadingsComponent/Loading'
-import { useAddGroupMemberMutation, useChatDetailsQuery, useDeleteChatMutation, useMyGroupsQuery, useRemoveGroupMemberMutation, useRenameGroupMutation } from '@/redux/RTK-query/api/api'
-import { useAsyncMutation, useError } from '@/hooks/hook'
-import ChatlistSkeleton from '@/components/LoadingsComponent/ChatlistSkeleton'
-import { getSocket } from '@/socket'
-import { ALERT, REFETCH_CHATS } from '@/constants/events'
 import { useDispatch, useSelector } from 'react-redux'
-import { setIsAddMember } from '@/redux/reducers/miscSlice'
 const ConfirmDeleteDialog = dynamic(() => import('@/components/dialogs/ConfirmDeleteDialog'), {
   ssr: false,
   loading: () => <Backdrop open />
@@ -42,7 +43,6 @@ const Groups = () => {
   const { isAddMember } = useSelector(state => state.misc)
   const myGroups = useMyGroupsQuery();
   const groupDetails = useChatDetailsQuery({ chatId, populate: true }, { skip: !chatId })
-  //   emitEvent(req, REFETCH_CHATS, chat.members);
   const [updateGroup, isLoadingGroupName] = useAsyncMutation(useRenameGroupMutation)
   const [removeMember, isLoadingRemoveMember] = useAsyncMutation(useRemoveGroupMemberMutation)
   const [deleteGroup, isLoadingDeleteGroup] = useAsyncMutation(useDeleteChatMutation);
@@ -95,26 +95,25 @@ const Groups = () => {
 
   const deleteHandler = async () => {
     const res = await deleteGroup("Deleting Group...", chatId);
+    console.log(res.data);
     if (res.data) {
-      socket.emit(REFETCH_CHATS, { members: res.data.members })
+      socket.emit(REFETCH_CHATS, { members: res.data.members, chatId });
+      // socket.emit(ALERT,{allMembers})
       setConfirmDeleteDialog(false);
-      router.refresh();
-      router.replace("/groups");
+      setGroupName('');
+      setGroupNameUpdatedValue('');
+      setMembers([]);
+      setIsEdit(false);
+      router.push('/groups')
     }
 
   }
   const removeHandler = async (id) => {
-    // emitEvent(
-    //   req,
-    //   ALERT,
-    //   chat.member,
-    //   `${userThatWillRemove.name} has been removed from the group`
-    // );
     const res = await removeMember("Removing Member...", { chatId, userId: id });
     console.log(res.data)
     if (res.data) {
-      socket.emit(REFETCH_CHATS, { members: res.data.members });
-      socket.emit(ALERT, { allMembers: res.data.members, message: res.data.removedMemberMemberMessage })
+      socket.emit(REFETCH_CHATS, { members: res.data.members, chatId });
+      socket.emit(ALERT, { allMembers: res.data.members, message: res.data.removedMemberMemberMessage, chatId: res.data.chatId })
     }
     console.log('removed', id);
   }
@@ -127,7 +126,7 @@ const Groups = () => {
 
 
   if (status === "loading") {
-    return <LoadingComponent />;
+    return <GroupsLoadingSkeleton />;
   }
 
   const GroupName = <>
@@ -165,7 +164,7 @@ const Groups = () => {
             <Typography variant='h4'>{groupName}</Typography>
           </motion.span>
           <Tooltip title='Edit Group Name'>
-            <IconButton onClick={() => setIsEdit(true)}>
+            <IconButton onClick={() => setIsEdit(true)} disabled={isLoadingGroupName}>
               <motion.span initial={{ opacity: 0, x: 50 }}
                 animate={{ opacity: 1, x: 0 }}
                 transition={{ duration: 0.5, }}
@@ -257,7 +256,8 @@ const Groups = () => {
               backgroundColor: 'black',
               borderRadius: '10px',
             },
-            background: chatBackground,
+            background: chatListBackground,
+            padding: '0.5rem'
           }
         }}
         sm={4}
@@ -311,10 +311,16 @@ const Groups = () => {
                   backgroundColor: 'black',
                   borderRadius: '10px',
                 },
+                position: "relative"
               }}
             >
 
-              {isLoadingRemoveMember ? <CircularProgress /> :
+              {isLoadingRemoveMember ? <CircularProgress sx={{
+                position: "absolute",
+                top: "50%",
+                left: "50%",
+                transform: "translate(-50%,-50%)"
+              }} /> :
                 (members.map((i) => (
                   <UserItem user={i} key={i._id} isAdded styling={{
                     boxShadow: '0 0 0.5rem rgba(0,0,0,0.8)',
@@ -351,8 +357,8 @@ const Groups = () => {
   )
 }
 
-const GroupList = ({ w = '100%', myGroups = [], chatId }) => (
-  <Stack width={w}>
+const GroupList = ({ w = '98%', myGroups = [], chatId }) => (
+  <Stack width={w} >
     {
       myGroups.length > 0 ? (myGroups.map((group) => <GroupListItem groups={group} chatId={chatId} key={group.id} />)) : (<Typography variant='h6' sx={{ textAlign: 'center' }}>No Groups</Typography>)
     }
@@ -363,14 +369,17 @@ const GroupList = ({ w = '100%', myGroups = [], chatId }) => (
 const GroupListItem = ({ groups, chatId }) => {
   const { name, avatar, id } = groups;
   return <Link href={`?group=${id}`} style={{
+    position: 'relative',
     textDecoration: 'none',
     color: 'black',
     width: '100%',
     display: 'block',
-    position: 'relative',
     padding: '0.5rem',
     borderRadius: '10px 0px 10px 0px', // add rounded border
     boxShadow: '0 0 10px rgba(0, 0, 0, 0.1)',
+    borderRadius: '30px',
+    margin: '0.5rem',
+    backgroundColor: '#ffffffb3',
   }} onClick={e => { if (chatId === id) e.preventDefault() }}>
     <Stack padding={'1rem'} height={'5rem'} justifyContent={'center'} direction={'row'} alignItems={'center'}>
       <AvatarCard avatar={avatar} />

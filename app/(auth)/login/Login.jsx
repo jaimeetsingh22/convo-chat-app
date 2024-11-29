@@ -4,7 +4,7 @@ import { LoadingComponent } from '@/components/LoadingsComponent/Loading';
 import { VisuallyHiddenInput } from '@/components/styles/StyledComponent';
 import { usernameValidor } from '@/utils/usernameValidator';
 import { CameraAlt as CameraAltIcon } from '@mui/icons-material';
-import { Avatar, Button, Container, CssBaseline, IconButton, Paper, Stack, TextField, Typography } from '@mui/material';
+import { Avatar, Button, CircularProgress, Container, CssBaseline, IconButton, Paper, Stack, TextField, Typography } from '@mui/material';
 import axios from 'axios';
 import { motion } from 'framer-motion';
 import { signIn, useSession } from 'next-auth/react';
@@ -33,7 +33,7 @@ const Login = () => {
   }
   const handleSignup = async (e) => {
     e.preventDefault();
-
+    const toastId = toast.loading("Creating Account...");
     const formData = new FormData();
     formData.append('name', name.value);
     formData.append('username', username.value);
@@ -52,7 +52,7 @@ const Login = () => {
       });
       const data = res.data;
       if (res.status === 201) {
-        toast.success(data.message);
+        toast.success(data.message, { id: toastId });
         const signInRes = await signIn('credentials', {
           username: username.value,
           password: password.value,
@@ -63,19 +63,19 @@ const Login = () => {
         }
       }
     } catch (error) {
-      console.error(error);
-      setIsTrue(false);
       if (error.response) {
         if (error.response.data.errors) {
           error.response.data.errors.forEach(err => {
-            toast.error(`${err.field}: ${err.message}`);
+            toast.error(`${err.field}: ${err.message}`, { id: toastId });
           });
         } else if (error.response.data.message) {
-          toast.error(error.response.data.message);
+          toast.error(error.response.data.message, { id: toastId });
         }
       } else {
-        toast.error("An unexpected error occurred");
+        toast.error("An unexpected error occurred", { id: toastId });
       }
+    } finally {
+      setIsTrue(false);
     }
   };
 
@@ -92,12 +92,14 @@ const Login = () => {
       if (res.error !== "Configuration" && res.ok) {
         router.push("/");
       } else {
-        setIsTrue(false);
         toast.error('Invalid email or password');
       }
     } catch (error) {
-      setIsTrue(false);
+
       console.error(error);
+      toast.error('Something went wrong!');
+    } finally {
+      setIsTrue(false);
     }
   };
 
@@ -204,7 +206,7 @@ const Login = () => {
                 }}
                 disabled={isTrue}
               >
-                Log In
+                {isTrue ? <CircularProgress size={24} /> : 'Log In'}
               </Button>
               <Typography sx={{ justifyContent: 'center', display: 'flex' }}>Or</Typography>
               <Button
@@ -212,6 +214,7 @@ const Login = () => {
                 variant="text"
                 sx={{ mt: 1, color: 'white' }}
                 onClick={() => setisLogin(false)}
+                disabled={isTrue}
               >
                 Sign Up
               </Button>
@@ -419,7 +422,7 @@ const Login = () => {
                 }}
                 disabled={isTrue}
               >
-                Sign Up
+                {isTrue ? <CircularProgress size={24} /> : 'Sign Up'}
               </Button>
               <Typography sx={{ justifyContent: 'center', display: 'flex' }}>Or</Typography>
               <Button
@@ -427,6 +430,7 @@ const Login = () => {
                 variant="text"
                 sx={{ mt: 1, color: 'white' }}
                 onClick={() => setisLogin(true)}
+                disabled={isTrue}
               >
                 Log In
               </Button>

@@ -1,8 +1,6 @@
-// import { Schema, model, models } from "mongoose";
 
-import mongoose from "mongoose"; 
 import { v4 } from "uuid";
-const { Schema, Types, model, models } = mongoose;
+import { Schema, Types, model, models } from "mongoose";
 const userSchema = new Schema(
   {
     name: {
@@ -27,12 +25,13 @@ const userSchema = new Schema(
       public_id: {
         type: String,
         required: false,
-        default:v4() 
+        default: v4(),
       },
       url: {
         type: String,
         required: false,
-        default:"https://png.pngitem.com/pimgs/s/421-4212266_transparent-default-avatar-png-default-avatar-images-png.png"
+        default:
+          "https://upload.wikimedia.org/wikipedia/commons/6/67/User_Avatar.png",
       },
     },
   },
