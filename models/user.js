@@ -1,6 +1,7 @@
 
+import { Schema, model, } from "mongoose";
+import mongoose from "mongoose";
 import { v4 } from "uuid";
-import { Schema, Types, model, models } from "mongoose";
 const userSchema = new Schema(
   {
     name: {
@@ -38,4 +39,4 @@ const userSchema = new Schema(
   { timestamps: true }
 );
 
-export const User = models?.User || model("User", userSchema);
+export const User = mongoose.models?.User || model("User", userSchema);
