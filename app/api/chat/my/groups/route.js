@@ -1,6 +1,5 @@
 import { auth } from "@/auth";
 import { Chat } from "@/models/chat";
-import { connectToDB } from "@/utils/connectToDB";
 import { NextResponse } from "next/server";
 
 export async function GET(req, res) {
@@ -15,7 +14,7 @@ export async function GET(req, res) {
     }
 
     const myId = user?.id;
-    await connectToDB();
+
 
     const chats = await Chat.find({
       members: myId,

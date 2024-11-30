@@ -1,9 +1,8 @@
 import { auth } from "@/auth";
 import { ALERT, REFETCH_CHATS } from "@/constants/events";
-import { emitEvent } from "@/utils/feature";
 import { Chat } from "@/models/chat";
 import { User } from "@/models/user";
-import { connectToDB } from "@/utils/connectToDB";
+import { emitEvent } from "@/utils/feature";
 import { NextResponse } from "next/server";
 
 export const DELETE = async (req, res) => {
@@ -18,7 +17,7 @@ export const DELETE = async (req, res) => {
       );
     }
 
-    await connectToDB();
+
     const myId = user.id;
     const { userId, chatId } = await req.json();
     console.log(userId, chatId);

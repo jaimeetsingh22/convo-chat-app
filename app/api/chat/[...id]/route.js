@@ -2,10 +2,9 @@
 
 import { auth } from "@/auth";
 import { REFETCH_CHATS } from "@/constants/events";
-import { deleteFilesFromCloudinary, emitEvent } from "@/utils/feature";
 import { Chat } from "@/models/chat";
 import { Message } from "@/models/message";
-import { connectToDB } from "@/utils/connectToDB";
+import { deleteFilesFromCloudinary, emitEvent } from "@/utils/feature";
 import { NextResponse } from "next/server";
 
 export async function GET(req, { params }) {
@@ -19,7 +18,7 @@ export async function GET(req, { params }) {
   }
 
   // Connect to the database
-  await connectToDB();
+ 
   const myId = user.id;
 
   const id = params["id"][0];
@@ -93,7 +92,7 @@ export async function PUT(req, { params }) {
       );
     }
 
-    await connectToDB();
+
 
     const id = params["id"][0];
     console.log(id);
@@ -129,7 +128,7 @@ export async function DELETE(req, { params }) {
   }
 
   // Connect to the database
-  await connectToDB();
+
   const myId = user.id;
 
   const id = params["id"][0];

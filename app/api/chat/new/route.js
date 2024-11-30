@@ -1,8 +1,7 @@
 import { auth } from "@/auth";
 import { ALERT } from "@/constants/events";
-import { emitEvent } from "@/utils/feature";
 import { Chat } from "@/models/chat";
-import { connectToDB } from "@/utils/connectToDB";
+import { emitEvent } from "@/utils/feature";
 import { NextResponse } from "next/server";
 
 export const POST = async (req, res) => {
@@ -45,7 +44,6 @@ export const POST = async (req, res) => {
       return NextResponse.json({ errors }, { status: 400 });
     }
 
-    await connectToDB();
 
     const existingGroup = await Chat.findOne({ name });
     if (existingGroup) {

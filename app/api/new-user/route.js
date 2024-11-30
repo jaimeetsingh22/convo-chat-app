@@ -1,6 +1,5 @@
 import { User } from "@/models/user";
 import { uploadFilesToCloudinary } from "@/utils/cloudinaryWork";
-import { connectToDB } from "@/utils/connectToDB";
 import { hash } from "bcryptjs";
 import { NextResponse } from "next/server";
 
@@ -20,7 +19,7 @@ export const POST = async (req, res) => {
       return NextResponse.json({ errors }, { status: 400 });
     }
 
-    await connectToDB();
+
 
     const existingUser = await User.findOne({ username });
     if (existingUser) {

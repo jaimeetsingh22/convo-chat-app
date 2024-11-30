@@ -2,7 +2,6 @@ import { auth } from "@/auth";
 import { Chat } from "@/models/chat";
 import { Message } from "@/models/message";
 import { uploadFilesToCloudinary } from "@/utils/cloudinaryWork";
-import { connectToDB } from "@/utils/connectToDB";
 import { NextResponse } from "next/server";
 
 export async function POST(req) {
@@ -17,7 +16,7 @@ export async function POST(req) {
     }
 
     // Connect to the database
-    await connectToDB();
+
     const myId = user.id;
 
     // Get chatId from the request body

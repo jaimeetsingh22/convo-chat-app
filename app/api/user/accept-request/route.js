@@ -1,8 +1,7 @@
 import { auth } from "@/auth";
-import { NEW_REQUEST, REFETCH_CHATS } from "@/constants/events";
+import { REFETCH_CHATS } from "@/constants/events";
 import { Chat } from "@/models/chat";
 import { Request } from "@/models/request";
-import { connectToDB } from "@/utils/connectToDB";
 import { emitEvent } from "@/utils/feature";
 import { NextResponse } from "next/server";
 
@@ -17,7 +16,7 @@ export async function PUT(req) {
       );
     }
 
-    await connectToDB();
+
     const myId = user.id;
 
     const { requestId, accept } = await req.json();

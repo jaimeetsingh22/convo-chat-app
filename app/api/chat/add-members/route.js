@@ -1,9 +1,8 @@
 import { auth } from "@/auth";
 import { ALERT, REFETCH_CHATS } from "@/constants/events";
-import { emitEvent } from "@/utils/feature";
 import { Chat } from "@/models/chat";
 import { User } from "@/models/user";
-import { connectToDB } from "@/utils/connectToDB";
+import { emitEvent } from "@/utils/feature";
 import { NextResponse } from "next/server";
 
 export const PUT = async (req, res) => {
@@ -18,7 +17,6 @@ export const PUT = async (req, res) => {
       );
     }
 
-    await connectToDB();
     const myId = user.id;
     const { chatId, members } = await req.json();
     // console.log(chatId, members);

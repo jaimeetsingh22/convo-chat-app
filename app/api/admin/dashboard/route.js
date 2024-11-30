@@ -1,7 +1,6 @@
 import { Chat } from "@/models/chat";
 import { Message } from "@/models/message";
 import { User } from "@/models/user";
-import { connectToDB } from "@/utils/connectToDB";
 import isAuthenticated from "@/utils/isAuthenticatedAdmin";
 import { NextResponse } from "next/server";
 
@@ -16,7 +15,7 @@ export async function GET(req) {
       }
     }
 
-    await connectToDB();
+    
 
     const [groupsCount, usersCounts, totalChatsCount, totalMessagesCount] =
       await Promise.all([

@@ -1,9 +1,8 @@
 import { auth } from "@/auth";
 import { ALERT } from "@/constants/events";
-import { emitEvent } from "@/utils/feature";
 import { Chat } from "@/models/chat";
 import { User } from "@/models/user";
-import { connectToDB } from "@/utils/connectToDB";
+import { emitEvent } from "@/utils/feature";
 import { NextResponse } from "next/server";
 
 export const DELETE = async (req, { params }) => {
@@ -29,7 +28,7 @@ export const DELETE = async (req, { params }) => {
       );
     }
     console.log(chatId);
-    await connectToDB();
+
     const myId = user.id;
 
     const chat = await Chat.findById(chatId);
