@@ -12,23 +12,23 @@ const SocketContext = createContext();
 
 const getSocket = () => useContext(SocketContext);
 
- const SocketProvider = ({ children }) => {
+const SocketProvider = ({ children }) => {
   const [socket, setSocket] = useState(null);
   const dispatch = useDispatch();
-  
+
   const onlineUsersHandler = useCallback((users) => {
 
     dispatch(setOnlineUsers(users));
-   }, [
-     dispatch,socket
-   ]);
-const eventHandlers = {
-  [USER_ONLINE]: onlineUsersHandler,
-  [USER_OFFLINE]: onlineUsersHandler,
-}
+  }, [
+    dispatch, socket
+  ]);
+  const eventHandlers = {
+    [USER_ONLINE]: onlineUsersHandler,
+    [USER_OFFLINE]: onlineUsersHandler,
+  }
 
-useSocketEvents(socket, eventHandlers);
-  
+  useSocketEvents(socket, eventHandlers);
+
 
   useEffect(() => {
     const newSocket = io(process.env.NEXT_PUBLIC_SOCKET_URL, {
@@ -38,6 +38,7 @@ useSocketEvents(socket, eventHandlers);
       reconnect: true,
       reconnectAttempts: Infinity,
       reconnectDelay: 1000,
+      withCredentials: true
       // Optionally, you can add reconnectDelayMax: 5000 to limit the maximum delay
     });
 
