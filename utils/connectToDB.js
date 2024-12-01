@@ -1,18 +1,14 @@
 import mongoose from "mongoose";
 
 export const connectToDB = async () => {
-  if (typeof window !== "undefined") {
-    throw new Error("Database connection should only occur on the server.");
-  }
-
   try {
-    if (mongoose.connection.readyState) return; // Already connected
+    if (mongoose.connections && mongoose.connections[0].readyState) return; // if the connection is alread established then it will not restablished the connection again and again
 
     const { connection } = await mongoose.connect(process.env.MONGO_URL, {
       dbName: "convo",
     });
-    console.log(`Connected to MongoDB: ${connection.host}`);
+    console.log(`connected to MongoDB database: ${connection.host} `)
   } catch (error) {
-    throw new Error(`Error connecting to DB: ${error.message}`);
+    throw new Error(`Error to connect DB: ${error}`);
   }
 };

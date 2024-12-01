@@ -1,4 +1,3 @@
-import cookieParser from "cookie-parser";
 import next from "next";
 import { createServer } from "node:http";
 import { Server } from "socket.io";
@@ -16,12 +15,14 @@ import {
   USER_ONLINE,
 } from "./constants/events.js";
 import { getSocketMembers } from "./lib/helper.js";
-import { socketAuthenticator } from "./middlewares/socketAuth.js";
 import { Message } from "./models/message.js";
+import { connectToDB } from "./utils/connectToDB.js";
+import cookieParser from "cookie-parser";
+import { socketAuthenticator } from "./middlewares/socketAuth.js";
 
 const dev = process.env.NODE_ENV !== "production";
-const hostname = "convo-chat-app-9j05.onrender.com";
-const port = process.env.PORT || 3000;
+const hostname = "localhost";
+const port = 3000;
 // when using middleware `hostname` and `port` must be provided below
 // it will be handle at the time of deployment
 const app = next({ dev, hostname, port });
@@ -32,14 +33,15 @@ const onlineUsers = new Set();
 
 app.prepare().then(() => {
   const httpServer = createServer(handler);
-
   const io = new Server(httpServer, {
     cors: {
-      origin: "https://convo-chat-app-9j05.onrender.com",
+      origin: "*",
       methods: ["GET", "POST"],
+      credentials:true
     },
+    
   });
-
+  connectToDB();
   io.use((socket, next) => {
     cookieParser()(socket.request, socket.request.res, async (err) => {
       await socketAuthenticator(err, socket, next);

@@ -32,7 +32,6 @@ const SocketProvider = ({ children }) => {
 
   useEffect(() => {
     const newSocket = io(process.env.NEXT_PUBLIC_SOCKET_URL, {
-      transports: ["websocket"],
       autoConnect: true,
       // Add these options for reconnection
       reconnect: true,
@@ -43,7 +42,7 @@ const SocketProvider = ({ children }) => {
     });
 
     newSocket.on("connect", () => {
-      // console.log("Connected to socket server with ID:", newSocket.id);
+      console.log("Connected to socket server with ID:", newSocket.id);
     });
 
     newSocket.on("connect_error", (err) => {
