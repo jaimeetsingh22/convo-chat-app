@@ -21,7 +21,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         }
 
         const isMatch = await compare(password, user.password);
-        console.log(isMatch)
+        console.log(isMatch);
         if (!isMatch) {
           throw new Error("Invalid Password");
         }
@@ -53,4 +53,5 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
       return session;
     },
   },
+  trustHost: true,
 });
