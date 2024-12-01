@@ -69,17 +69,16 @@ const Chat = () => {
     })
     setMessage("");
   }
-
   useEffect(() => {
-    dispatch(removeNewMessageAlert(chatId))
-
+    dispatch(removeNewMessageAlert(chatId));
+  
     return () => {
       setMessages([]);
       setMessage("");
       setOldMessages([]);
       setPage(1);
-    }
-  }, [chatId]);
+    };
+  }, [chatId, dispatch, setOldMessages]);
 
   const messagOnChangeHandler = (e) => {
     setMessage(e.target.value);
@@ -155,9 +154,9 @@ const Chat = () => {
   }, [messages]);
 
 
-  useEffect(() => {
-    if (chatDetails.isError) return router.push("/");
-  }, [chatDetails])
+ useEffect(() => {
+  if (chatDetails.isError) return router.push("/");
+}, [chatDetails, router]);
 
 
   // Auto-scroll to the bottom on new message

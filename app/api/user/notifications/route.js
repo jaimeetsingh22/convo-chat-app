@@ -1,5 +1,6 @@
 import { auth } from "@/auth";
 import { Request } from "@/models/request";
+import { connectToDB } from "@/utils/connectToDB";
 import { NextResponse } from "next/server";
 
 export async function GET(req) {
@@ -14,7 +15,7 @@ export async function GET(req) {
       );
     }
 
- 
+    await connectToDB();
     const myId = user.id;
 
     const requests = await Request.find({ receiver: myId }).populate(

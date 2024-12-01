@@ -97,7 +97,11 @@ const FileMenu = ({ anchorE1, chatId }) => {
       >
         <DialogContent>
           {previewFile && (
-            <Typography variant="body1">File: {previewFile.map((i, idx) => { return <span key={idx}>"{i.name}", </span> })}</Typography>
+            <Typography variant="body1">
+            File: {previewFile && previewFile.map((i, idx) => (
+              <span key={idx}>&quot;{i.name}&quot;, </span>
+            ))}
+          </Typography>
           )}
         </DialogContent>
         <DialogActions>

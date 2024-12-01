@@ -1,13 +1,10 @@
 'use client'
 import { useFetchData } from '6pp';
-import Table from '@/components/shared/Table'
-import { dashBoardData } from '@/constants/sampleData';
+import Table from '@/components/shared/Table';
 import { useError } from '@/hooks/hook';
 import { transformImage } from '@/utils/feature';
 import { Avatar } from '@mui/material';
-import { useRouter } from 'next/navigation';
-import { useEffect, useState } from 'react'
-import { useSelector } from 'react-redux';
+import { useEffect, useState } from 'react';
 
 const columns = [
   {
@@ -56,14 +53,14 @@ const UserManagment = () => {
   const [rows, setRows] = useState([]);
 
   const { data, loading, error } = useFetchData("/api/admin/users", "user-stats", []);
-  const { users } = data || {};
+  // const { users } = data || {};
 
 
   useError([{ isError: error, error: error }])
 
   useEffect(() => {
-    if (data) {
-      setRows(users.map(i => ({ ...i, id: i._id, avatar: transformImage(i.avatar, 50) })));
+    if (data?.users) {
+      setRows(data.users.map(i => ({ ...i, id: i._id, avatar: transformImage(i.avatar, 50) })));
     }
   }, [data]);
   return (

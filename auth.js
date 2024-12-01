@@ -1,6 +1,7 @@
 import NextAuth from "next-auth";
 import CredentialProvider from "next-auth/providers/credentials";
 import { User } from "./models/user";
+import { connectToDB } from "./utils/connectToDB";
 import { compare } from "bcryptjs";
 
 export const { handlers, signIn, signOut, auth } = NextAuth({
@@ -12,6 +13,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
           throw new Error("no user please provide all the field");
         }
         const { username, password } = credentials;
+        await connectToDB();
 
         const user = await User.findOne({ username }).select("+password");
         if (!user) {

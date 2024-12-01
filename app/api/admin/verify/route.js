@@ -1,5 +1,5 @@
-import jwt from "jsonwebtoken";
 import { NextResponse } from "next/server";
+import jwt from "jsonwebtoken";
 
 export async function POST(req) {
   try {

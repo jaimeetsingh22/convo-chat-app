@@ -1,14 +1,11 @@
 'use client'
 import { useFetchData } from '6pp';
 import AvatarCard from '@/components/shared/AvatarCard';
-import Table from '@/components/shared/Table'
-import { dashBoardData } from '@/constants/sampleData';
+import Table from '@/components/shared/Table';
 import { useError } from '@/hooks/hook';
 import { transformImage } from '@/utils/feature';
 import { Avatar, Stack, Typography } from '@mui/material';
-import { useRouter } from 'next/navigation';
-import { useEffect, useState } from 'react'
-import { useSelector } from 'react-redux';
+import { useEffect, useState } from 'react';
 
 // there is mistake in this component will fix it later!
 
@@ -84,28 +81,28 @@ const ChatManagment = () => {
   const [rows, setRows] = useState([]);
 
   const { data, loading, error } = useFetchData("/api/admin/chats", "chat-stats", []);
-  const { chats } = data || {};
   
 
   useError([{ isError: error, error: error }])
 
 
   useEffect(() => {
-    if (data) {
+    if (data?.chats) {
       setRows(
-        chats.map(i => ({
+        data.chats.map((i) => ({
           ...i,
           id: i._id,
-          avatar: i.avatar.map(i => transformImage(i, 50)),
-          members: i.members.map(i => transformImage(i.avatar, 50)),
+          avatar: i.avatar.map((a) => transformImage(a, 50)),
+          members: i.members.map((m) => transformImage(m.avatar, 50)),
           creator: {
             name: i.creator.name,
-            avatar: transformImage(i.creator.avatar, 50)
-          }
+            avatar: transformImage(i.creator.avatar, 50),
+          },
         }))
-      )
+      );
     }
-  }, [data]);
+  }, [data]); // Explicitly include `data` in the dependency array
+  
   return !data ? <h1>Loading...</h1> : (
     <Table heading={'All Chats'} row={rows} columns={columns} />
   )

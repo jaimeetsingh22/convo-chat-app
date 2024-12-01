@@ -1,4 +1,5 @@
 import { Message } from "@/models/message";
+import { connectToDB } from "@/utils/connectToDB";
 import isAuthenticated from "@/utils/isAuthenticatedAdmin";
 import { NextResponse } from "next/server";
 
@@ -11,7 +12,7 @@ export async function GET(req) {
     }
   }
   try {
-    
+    await connectToDB();
 
     const messages = await Message.find({})
       .populate("sender", "name avatar")

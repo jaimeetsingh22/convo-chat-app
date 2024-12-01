@@ -1,5 +1,6 @@
 import { Chat } from "@/models/chat";
 import { Message } from "@/models/message";
+import { connectToDB } from "@/utils/connectToDB";
 import isAuthenticated from "@/utils/isAuthenticatedAdmin";
 import { NextResponse } from "next/server";
 
@@ -16,7 +17,8 @@ export async function GET(req) {
     }
   }
   try {
-    
+    await connectToDB();
+
     const chats = await Chat.find({})
       .populate("members", "name avatar")
       .populate("creator", "name avatar");

@@ -1,6 +1,7 @@
 import { auth } from "@/auth";
 import { NEW_REQUEST } from "@/constants/events";
 import { Request } from "@/models/request";
+import { connectToDB } from "@/utils/connectToDB";
 import { emitEvent } from "@/utils/feature";
 import { NextResponse } from "next/server";
 
@@ -16,7 +17,7 @@ export async function PUT(req) {
       );
     }
 
-
+    await connectToDB();
     const myId = user.id;
 
     const { userId } = await req.json();

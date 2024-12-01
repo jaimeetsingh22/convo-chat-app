@@ -89,14 +89,14 @@ const Messages = () => {
 
 
   const { data, loading, error } = useFetchData("/api/admin/messages", "messages-stats", []);
-  const { messages } = data || {};
+  // const { messages } = data || {};
   console.log(data);
 
   useError([{ isError: error, error: error }])
 
   useEffect(() => {
-    if (data) {
-      setRows(messages.map((i) => ({
+    if (data?.messages) {
+      setRows(data.messages.map((i) => ({
         ...i,
         id: i._id,
         sender: {

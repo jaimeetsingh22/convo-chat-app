@@ -1,3 +1,4 @@
+import cookieParser from "cookie-parser";
 import next from "next";
 import { createServer } from "node:http";
 import { Server } from "socket.io";
@@ -15,11 +16,8 @@ import {
   USER_ONLINE,
 } from "./constants/events.js";
 import { getSocketMembers } from "./lib/helper.js";
-import { Message } from "./models/message.js";
-
-import cookieParser from "cookie-parser";
 import { socketAuthenticator } from "./middlewares/socketAuth.js";
-import mongoose from "mongoose";
+import { Message } from "./models/message.js";
 
 const dev = process.env.NODE_ENV !== "production";
 const hostname = "localhost";
@@ -32,29 +30,11 @@ const handler = app.getRequestHandler();
 export const userSocketIDs = new Map();
 const onlineUsers = new Set();
 
-const connectToDB = async () => {
-  const mongoURL = process.env.MONGO_URL;
-  if (!mongoURL) {
-    console.error("MongoDB connection string is missing in environment variables.");
-    process.exit(1);
-  }
-
-  try {
-    await mongoose.connect(mongoURL); // No need for deprecated options
-    console.log("Connected to MongoDB successfully.");
-  } catch (error) {
-    console.error("Error connecting to MongoDB:", error.message);
-    process.exit(1);
-  }
-};
-
-
-
 app.prepare().then(() => {
   const httpServer = createServer(handler);
 
   const io = new Server(httpServer);
-  connectToDB();
+
 
   io.use((socket, next) => {
     cookieParser()(socket.request, socket.request.res, async (err) => {

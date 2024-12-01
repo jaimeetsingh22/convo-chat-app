@@ -1,5 +1,6 @@
 import { Chat } from "@/models/chat";
 import { User } from "@/models/user";
+import { connectToDB } from "@/utils/connectToDB";
 import isAuthenticated from "@/utils/isAuthenticatedAdmin";
 import { NextResponse } from "next/server";
 
@@ -12,7 +13,7 @@ export async function GET(req) {
     }
   }
   try {
-  
+    await connectToDB();
     const users = await User.find({});
     const transformedUsers = await Promise.all(
       users.map(async ({ _id, name, username, avatar }) => {

@@ -1,6 +1,7 @@
 import { auth } from "@/auth";
 import { Chat } from "@/models/chat";
 import { User } from "@/models/user";
+import { connectToDB } from "@/utils/connectToDB";
 import { NextResponse } from "next/server";
 
 export const GET = async (req, res) => {
@@ -15,7 +16,7 @@ export const GET = async (req, res) => {
       );
     }
 
-
+    await connectToDB();
     const myId = user.id;
 
     const query = req.nextUrl.searchParams;

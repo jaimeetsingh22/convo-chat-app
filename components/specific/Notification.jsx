@@ -85,7 +85,7 @@ const NotificationItem = memo(({ _id, sender, handler,loading }) => (
         width={'100%'}
       >
         <Avatar src={sender?.avatar} />
-        <Tooltip title={`${sender.name} sent you friend request.`}>
+        <Tooltip title={`${sender?.name} sent you friend request.`}>
 
           <Typography
             variant='body1'
@@ -100,7 +100,7 @@ const NotificationItem = memo(({ _id, sender, handler,loading }) => (
               cursor: "default"
             }}
           >
-            {`${sender.name} sent you a friend request.`}
+            {`${sender?.name} sent you a friend request.`}
           </Typography>
         </Tooltip>
         <Stack
@@ -120,4 +120,5 @@ const NotificationItem = memo(({ _id, sender, handler,loading }) => (
   </motion.div>
 ));
 
+NotificationItem.displayName = "NotificationItem"; 
 export default Notification;

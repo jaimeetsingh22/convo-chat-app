@@ -57,21 +57,21 @@ const AppLayout = ({ children }) => {
   const newMessageAlertHandler = useCallback((data) => {
     if (data.chatId === chatId) return;
     dispatch(setNewMessageAlert(data));
-  }, [chatId])
+  }, [chatId, dispatch])
 
   const newRequestHandler = useCallback((data) => {
 
 
     dispatch(increamentNotificaton());
-  }, []);
+  }, [dispatch]);
 
   const refetchListener = useCallback((data) => {
 
     refetch();
-    
+
     if (chatId !== data.chatId) { router.push("/"); };
 
-  }, [refetch, router])
+  }, [refetch, chatId, router])
 
 
 
@@ -85,7 +85,7 @@ const AppLayout = ({ children }) => {
 
   useSocketEvents(socket, eventHandlers);
 
-  
+
   if (status === "loading") return <LoadingComponent />;
   if (status === "unauthenticated") return null;
 

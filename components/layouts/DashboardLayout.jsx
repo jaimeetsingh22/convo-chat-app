@@ -180,7 +180,7 @@ export default function DashboardLayout({ children }) {
   useEffect(() => {
     console.log(isAdmin);
     if (!isAdmin) return router.push("/admin");
-  }, [isAdmin]);
+  }, [isAdmin,router]);
 
  
 

@@ -57,7 +57,7 @@ const Search = () => {
     return () => {
       clearTimeout(timeOutId)
     }
-  }, [search.value])
+  }, [search.value,searchUser])
 
   const containerVariants = {
     hidden: { opacity: 0 },
