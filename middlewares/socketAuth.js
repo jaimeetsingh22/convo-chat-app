@@ -8,7 +8,8 @@ const socketAuthenticator = async (err, socket, next) => {
       console.log("error of socket",err)
       return next(err);
     }
-    const nextAuthToken = socket.request.cookies["authjs.session-token"];
+    const nextAuthToken = socket.request.cookies["__Secure-authjs.session-token"]; // for production
+    // const nextAuthToken = socket.request.cookies["authjs.session-token"];// for development
     console.log("token checking inside the socketAuthenticator",nextAuthToken);
     if (!nextAuthToken) {
       return next(
