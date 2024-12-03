@@ -2,11 +2,14 @@ import { decode } from "next-auth/jwt";
 
 
 const socketAuthenticator = async (err, socket, next) => {
+  console.log("inside socket authenticator function");
   try {
     if (err) {
+      console.log("error of socket",err)
       return next(err);
     }
     const nextAuthToken = socket.request.cookies["authjs.session-token"];
+    console.log("token checking inside the socketAuthenticator",nextAuthToken);
     if (!nextAuthToken) {
       return next(
        Response.json(

@@ -41,10 +41,12 @@ app.prepare().then(() => {
       credentials: true,
     },
   });
-  
+  console.log("inside the server.js")
   connectToDB();
   io.use((socket, next) => {
+    console.log("socketAuthenticator middleware check!")
     cookieParser()(socket.request, socket.request.res, async (err) => {
+      console.log('inside cookie parser');
       await socketAuthenticator(err, socket, next);
     });
   });
