@@ -36,9 +36,8 @@ app.prepare().then(() => {
   const io = new Server(httpServer);
   connectToDB();
   io.use((socket, next) => {
-    console.log("socketAuthenticator middleware");
+    
     cookieParser()(socket.request, socket.request.res, async (err) => {
-      console.log("inside the coockie parser")
       await socketAuthenticator(err, socket, next);
     });
   });
@@ -72,7 +71,6 @@ app.prepare().then(() => {
         chatId,
         message: messageForRealTime,
       });
-      console.log(socket.id);
       io.to(membersSockets).emit(NEW_MESSAGE_ALERT, { chatId });
       try {
         await Message.create(messageForDB);
@@ -107,7 +105,6 @@ app.prepare().then(() => {
 
       const membersSockets = getSocketMembers(members);
 
-      console.log("members socket: ", membersSockets);
       io.to(membersSockets).emit(NEW_ATTACHMENT, {
         chatId,
         message: messageForRealTime,
@@ -116,13 +113,10 @@ app.prepare().then(() => {
     });
     socket.on(NEW_REQUEST, ({ userId }) => {
       const userSocket = getSocketMembers([userId]);
-      // console.log("userId socket Id: ", userSocket);
-      console.log("userSocket after emiting new", userSocket);
       io.to(userSocket).emit(NEW_REQUEST, { userId });
     });
     socket.on(REFETCH_CHATS, ({ members, chatId }) => {
       const membersSockets = getSocketMembers(members);
-      console.log("members sockets", membersSockets);
       io.emit(REFETCH_CHATS, { members, chatId });
     });
 

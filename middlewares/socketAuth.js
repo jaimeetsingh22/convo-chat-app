@@ -2,7 +2,6 @@ import { decode } from "next-auth/jwt";
 
 
 const socketAuthenticator = async (err, socket, next) => {
-  console.log("inside socket authenticator function");
   try {
     if (err) {
       console.log("error of socket",err)
@@ -10,7 +9,6 @@ const socketAuthenticator = async (err, socket, next) => {
     }
     const nextAuthToken = socket.request.cookies["__Secure-authjs.session-token"]; // for production
     // const nextAuthToken = socket.request.cookies["authjs.session-token"];// for development
-    console.log("token checking inside the socketAuthenticator",nextAuthToken);
     if (!nextAuthToken) {
       return next(
        Response.json(
@@ -25,7 +23,7 @@ const socketAuthenticator = async (err, socket, next) => {
 
     const decodedData = await decode({
       token: nextAuthToken,
-      // salt: "authjs.session-token",// for production
+      // salt: "authjs.session-token",// for development
       salt: "__Secure-authjs.session-token",// for production
       secret: process.env.AUTH_SECRET,
     });
