@@ -31,15 +31,7 @@ const SocketProvider = ({ children }) => {
 
 
   useEffect(() => {
-    const newSocket = io(process.env.NEXT_PUBLIC_SOCKET_URL, {
-      autoConnect: true,
-      // Add these options for reconnection
-      reconnect: true,
-      reconnectAttempts: Infinity,
-      reconnectDelay: 1000,
-      withCredentials: true
-      // Optionally, you can add reconnectDelayMax: 5000 to limit the maximum delay
-    });
+    const newSocket = io();
 
     newSocket.on("connect", () => {
       console.log("Connected to socket server with ID:", newSocket.id);
