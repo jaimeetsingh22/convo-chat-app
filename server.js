@@ -21,10 +21,8 @@ import cookieParser from "cookie-parser";
 import { socketAuthenticator } from "./middlewares/socketAuth.js";
 
 const dev = process.env.NODE_ENV !== "production";
-const hostname = "localhost";
+const hostname = dev ? "localhost" : undefined; // Use undefined in production
 const port = process.env.PORT || 3000;
-// when using middleware `hostname` and `port` must be provided below
-// it will be handle at the time of deployment
 const app = next({ dev, hostname, port });
 const handler = app.getRequestHandler();
 
@@ -33,7 +31,17 @@ const onlineUsers = new Set();
 
 app.prepare().then(() => {
   const httpServer = createServer(handler);
-  const io = new Server(httpServer);
+  const io = new Server(httpServer,{
+    cors: {
+      origin: dev
+        ? "http://localhost:3000"
+        : "https://convo-chat-app-rukc.onrender.com",
+        
+      methods: ["GET", "POST"],
+      credentials: true,
+    },
+  });
+  
   connectToDB();
   io.use((socket, next) => {
     cookieParser()(socket.request, socket.request.res, async (err) => {

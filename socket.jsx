@@ -31,38 +31,46 @@ const SocketProvider = ({ children }) => {
 
 
   useEffect(() => {
-    const newSocket = io();
-
+    const socketURL = process.env.NODE_ENV === "production"
+      ? "https://convo-chat-app-rukc.onrender.com" // Your production server URL
+      : "http://localhost:3000"; // Local development URL
+  
+    const newSocket = io(socketURL, {
+      transports: ["websocket", "polling"], // Use fallback transports for better reliability
+      path: "/socket.io/", // Ensure the path matches the server configuration
+    });
+  
     newSocket.on("connect", () => {
       console.log("Connected to socket server with ID:", newSocket.id);
     });
-
+  
     newSocket.on("connect_error", (err) => {
       console.log("Socket connection error:", err);
     });
-
+  
     newSocket.on("disconnect", (reason) => {
       console.log("Socket disconnected:", reason);
     });
-
+  
     newSocket.on("reconnect", () => {
       console.log("Socket reconnected:", newSocket.id);
     });
-
+  
     newSocket.on("reconnect_attempt", () => {
       console.log("Reconnecting...");
     });
-
+  
     newSocket.on("reconnect_failed", () => {
       console.log("Reconnection failed");
     });
-
+  
     setSocket(newSocket);
-
+  
     return () => {
       newSocket.close();
     };
-  }, []); // Empty dependency array to ensure this effect runs only once
+  }, []);
+  
 
   return (
     <SocketContext.Provider value={socket}>
