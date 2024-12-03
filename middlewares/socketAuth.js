@@ -25,7 +25,8 @@ const socketAuthenticator = async (err, socket, next) => {
 
     const decodedData = await decode({
       token: nextAuthToken,
-      salt: "authjs.session-token",
+      // salt: "authjs.session-token",// for production
+      salt: "__Secure-authjs.session-token",// for production
       secret: process.env.AUTH_SECRET,
     });
     if (!decodedData) {
