@@ -46,7 +46,8 @@ const Header = (userData) => {
   };
   const openNewGroup = () => { dispatch(setIsNewGroup(true)) };
   const handleSignOut = async () => {
-    await signOut({ callbackUrl: '/login' })
+    // await signOut({ callbackUrl: '/login' }); // for development
+    await signOut({ callbackUrl: 'https://convo-chat-app-rukc.onrender.com/login' });// for development
   }
 
 
