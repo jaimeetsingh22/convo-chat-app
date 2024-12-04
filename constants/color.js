@@ -1,34 +1,34 @@
 // Header Colors
-export const headerBackground = "linear-gradient(to right, #001f3f, #003366)"; // Deep navy
-export const headerIconsColor = "#ffd700"; // Gold
-export const headerLogoConvoTextColor = "#ffd700"; // Gold
+export const headerBackground = "linear-gradient(to right, #00293c, #005f73)"; // Deep Arctic Blue to Icy Sea Green
+export const headerIconsColor = "#000000"; // Black
+export const headerLogoConvoTextColor = "#ffffff"; // White
 
 // Profile Colors
-export const profileBackground = "#002b5c"; // Soft navy
-export const profileCardCaptionTextColor = "#ffcc00"; // Golden yellow
-export const profileCardTextColor = "#ffffff"; // White
-export const profileIconsColor = "#ffd700"; // Gold
+export const profileBackground = "#005f73"; // Icy Sea Green
+export const profileCardCaptionTextColor = "#94d2bd"; // Mint Ice
+export const profileCardTextColor = "#000000"; // Black
+export const profileIconsColor = "#0a9396"; // Frosty Teal
 
 // Chat List Colors
-export const chatListBackground = "#002b4c"; // Deep navy
-export const chatItemsOnSameSenderTrue = "#003366"; // Lighter navy
-export const chatItemsOnSameSenderFalse = "#002b5c"; // Soft navy
-export const chatItemTextOnSameSenderTrue = "#ffcc00"; // Golden yellow
+export const chatListBackground = "#001219"; // Deep Arctic Navy
+export const chatItemsOnSameSenderTrue = "#005f73"; // Icy Sea Green
+export const chatItemsOnSameSenderFalse = "#0a9396"; // Frosty Teal
+export const chatItemTextOnSameSenderTrue = "#ffffff"; // White
 export const chatItemTextOnSameSenderFalse = "#ffffff"; // White
-export const chatItemOnHoverAtSamesenderTrue = "rgba(255, 215, 0, 0.1)"; // Gold hover
-export const chatItemOnHoverAtSamesenderFalse = "rgba(0, 51, 102, 0.2)"; // Navy hover
+export const chatItemOnHoverAtSamesenderTrue = "rgba(10, 147, 150, 0.2)"; // Frosty Hover
+export const chatItemOnHoverAtSamesenderFalse = "rgba(0, 95, 115, 0.3)"; // Arctic Hover
 
 // Chat Message Area Colors
-export const chatMessagesBackgroundColor = "#001f3f"; // Deep navy
-export const sameSenderMessageBackgroundColor = "#003366"; // Lighter navy
-export const notSameSenderMessageBackgroundColor = "#002b5c"; // Soft navy
-export const notSameSendersNameTextColor = "#ffd700"; // Gold
+export const chatMessagesBackgroundColor = "#00293c"; // Deep Arctic Blue
+export const sameSenderMessageBackgroundColor = "#005f73"; // Icy Sea Green
+export const notSameSenderMessageBackgroundColor = "#0a9396"; // Frosty Teal
+export const notSameSendersNameTextColor = "#94d2bd"; // Mint Ice
 export const notSameSendersMessageContentTextColor = "#ffffff"; // White
 export const SameSendersMessageContentTextColor = "#ffffff"; // White
-export const timeAgoTextColor = "#ffcc00"; // Golden yellow
+export const timeAgoTextColor = "#94d2bd"; // Mint Ice
 
 // Send Message Input Colors
-export const sendMessageFormBackgroundColor = "#001f3f"; // Deep navy
+export const sendMessageFormBackgroundColor = "#00293c"; // Deep Arctic Blue
 export const messageTypingInputBackgroundColor = "#ffffff"; // White
-export const attachFileIconColor = "#ffd700"; // Gold
-export const sendButtonColor = "#ffcc00"; // Vibrant golden yellow
+export const attachFileIconColor = "#000000"; // Black
+export const sendButtonColor = "#94d2bd"; // Mint Ice

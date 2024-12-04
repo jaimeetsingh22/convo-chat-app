@@ -46,7 +46,6 @@ const Dashboard = () => {
       >
         {moment().format("dddd, Do MMMM YYYY")}
       </Typography>
-      <NotificationIcon />
     </Stack>
   </Paper>
   const Widgets = <Stack direction={{

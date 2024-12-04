@@ -83,14 +83,14 @@ const Search = () => {
 
   return (
     <Dialog open={isSearch} onClose={handleClose}>
-      <Stack sx={{ padding: 4, width: '25rem' }}>
+      <Stack sx={{ padding: 4, width: '20rem' }}>
         <motion.div
           initial={{ opacity: 0, y: -50 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5 }}
         >
           <DialogTitle textAlign={'center'}>
-            <Typography fontSize={'1.5rem'}>
+            <Typography fontSize={'1.3rem'}>
               Find people
             </Typography>
           </DialogTitle>
@@ -121,7 +121,7 @@ const Search = () => {
             backgroundColor: 'black',
             borderRadius: '10px',
           },
-          padding: '0.2rem',
+          padding: '0.3rem',
           marginTop: "5px"
         }}>
           {isLoading ? (

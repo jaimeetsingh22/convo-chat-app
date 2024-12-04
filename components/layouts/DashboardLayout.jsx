@@ -89,7 +89,8 @@ const Sidebar = ({ w = "100%" }) => {
             style={{
               textDecoration: "none",
               color: "black",
-              iddisplay: "block",
+              display: "block",
+              
             }}
           >
             <Stack
@@ -107,15 +108,16 @@ const Sidebar = ({ w = "100%" }) => {
                   backgroundColor: "#f6f6f6",
                 },
                 borderRadius: "2rem",
-                padding: "1rem 2rem",
+                padding: "1rem 1rem",
                 display: "grid",
                 gridTemplateColumns: "1fr 3fr 1fr",
+                width:{xs:"10rem",md:"auto"}
               }}
             >
               {tab.icon}
               <Typography
                 sx={{
-                  fontSize: "1.1rem",
+                  fontSize: {xs:"14px",lg:"1.1rem"},
                   fontWeight: "bold",
                 }}
               >
@@ -285,7 +287,7 @@ export default function DashboardLayout({ children }) {
             {children}
           </Grid>
           <Drawer open={isMobile} onClose={handleClose}>
-            <Sidebar w={"50vw"} />
+            <Sidebar w={"60vw"} />
           </Drawer>
         </Grid>
       </div>
