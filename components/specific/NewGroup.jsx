@@ -22,7 +22,7 @@ const NewGroup = () => {
   const dispatch = useDispatch();
   const handleClose = () => dispatch(setIsNewGroup(false))
   const { isNewGroup } = useSelector(state => state.misc)
-  const socket = getSocket();
+  const {socket} = getSocket();
 
   const submitHandler = async () => {
     if (selectedMembers.length < 2) return toast.error("Please select at least 2 members");;

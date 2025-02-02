@@ -7,12 +7,9 @@ export default function RootLayout({ children }) {
   return (
     <html>
       <body>
-        <SessionProvider>
-          <CssBaseline />
-
-          <Toaster position="bottom-center" />
-          <AppLayout>{children}</AppLayout>
-        </SessionProvider>
+        <CssBaseline />
+        <Toaster position="bottom-center" />
+        <AppLayout>{children}</AppLayout>
       </body>
     </html>
   );

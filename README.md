@@ -40,6 +40,9 @@ Current Features
 Real-Time Chat: Users can send and receive messages in real-time.
 Custom Themes: Offers multiple elegant color themes for a personalized chat experience.
 Authentication: Secure login system to protect user data.
+File Sharing: Users can share files with each other.
+Group Chats: Users can create and join group chats.
+Video Call: User can Make video call to each other except Group video call
 Upcoming Features
 Message Seen Feature: Currently unavailable, but it will be included in the next update.
 AI Chats: The next update will introduce ChatGPT AI Chat and Gemini AI Chats, enhancing your communication experience with intelligent and interactive responses.

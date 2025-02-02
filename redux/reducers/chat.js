@@ -13,7 +13,23 @@ const initialState = {
       count: 0,
     },
   ],
-  onlineUsers:[],
+  onlineUsers: [],
+  isRinging: false,
+  onGoingCall: {
+    participants: {
+      caller: {
+        name: "",
+        avatar: "",
+        id: "",
+      },
+      receiver: {
+        name: "",
+        avatar: "",
+        id: "",
+      },
+    },
+  },
+  isVoiceCall: false,
 };
 // miscelleneous slice
 const chatSlice = createSlice({
@@ -51,6 +67,15 @@ const chatSlice = createSlice({
     setOnlineUsers(state, action) {
       state.onlineUsers = action.payload;
     },
+    setOnGoingCall(state, action) {
+      state.onGoingCall = action.payload;
+    },
+    setIsRinging(state, action) {
+      state.isRinging = action.payload;
+    },
+    setIsVoiceCall(state, action) {
+      state.isVoiceCall = action.payload;
+    },
   },
 });
 
@@ -61,5 +86,8 @@ export const {
   setNotificationCount,
   setNewMessageAlert,
   removeNewMessageAlert,
-  setOnlineUsers
+  setOnlineUsers,
+  setOnGoingCall,
+  setIsRinging,
+  setIsVoiceCall
 } = chatSlice.actions;

@@ -21,7 +21,8 @@ const MessageComponent = ({ message, user }) => {
                 color: 'black',
                 borderRadius: sameSender ? '10px 20px 0px 20px' : '0px 20px 10px 20px',
                 padding: '0.5rem',
-                width: 'fit-content'
+                width: 'fit-content',
+                margin:"0.7rem"
             }}
         >
             {

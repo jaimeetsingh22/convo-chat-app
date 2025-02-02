@@ -8,11 +8,9 @@ export default function RootLayout({ children }) {
   return (
     <html lang="en">
       <body>
-        <SessionProvider>
-          <CssBaseline />
-          <Toaster position="bottom-center" />
-          {children}
-        </SessionProvider>
+        <CssBaseline />
+        <Toaster position="bottom-center" />
+        {children}
       </body>
     </html>
   );

@@ -21,7 +21,7 @@ const Search = () => {
   const { isSearch } = useSelector(state => state.misc)
   const [searchUser] = useLazySearchUserQuery();
   const [sendFriendRequest, isLoadingSendFriendRequest,requestData] = useAsyncMutation(useSendFriendRequestMutation);
-  const socket = getSocket()
+  const {socket} = getSocket();
   const addFriendHandler = async (id) => {
     const res = await sendFriendRequest("Sending Friend Request...", { userId: id });
     console.log("add friend handler: ",res);

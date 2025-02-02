@@ -8,6 +8,7 @@ import { useDispatch } from 'react-redux'
 import { setIsMobileMenu } from '@/redux/reducers/miscSlice'
 import { motion } from "framer-motion"
 import { chatItemOnHoverAtSamesenderFalse, chatItemOnHoverAtSamesenderTrue, chatItemsOnSameSenderFalse, chatItemsOnSameSenderTrue, chatItemTextOnSameSenderFalse, chatItemTextOnSameSenderTrue } from '@/constants/color'
+import { setOnGoingCall } from '@/redux/reducers/chat'
 
 const ChatItem = ({
     avatar = [],
@@ -24,6 +25,7 @@ const ChatItem = ({
     const handleMobileClose = () => {
         dispatch(setIsMobileMenu(false));
     }
+    console.log()
 
     return (
         <Link
@@ -33,9 +35,25 @@ const ChatItem = ({
                 width: '100%',
                 display: 'block',
             }}
-            href={`/chat/${_id}`}
+            href={`/chat/${_id}?name=${name}`}
             onContextMenu={(e) => handleDeleteChat(e, _id, groupChat)}
-            onClick={handleMobileClose}
+            onClick={()=>{
+                handleMobileClose()
+                dispatch(setOnGoingCall({
+                    isRinging:false,
+                    participants:{
+                      caller:{
+                        name:"",
+                        avatar:"",
+                        id:""
+                      },
+                      receiver:{
+                        name,
+                        avatar:avatar[0].avatar.url,
+                      }
+                    }
+                }))
+            }}
         >
             <motion.div
                 initial={{ opacity: 0, y: '-100%' }}

@@ -19,7 +19,7 @@ const Notification = () => {
   const { isLoading, isError, error, data } = useGetNotificationQuery();
   const [acceptRequest, isLoadingacceptRequest] = useAsyncMutation(useAcceptFriendRequestMutation);
   console.log()
-  const socket = getSocket();
+  const {socket} = getSocket();
   const friendRequestHandler = async ({ _id, accept }) => {
     dispatch(resetNotification())
     const res = await acceptRequest(accept ? "Accepting Request...":"Rejecting Request...", { requestId: _id, accept });

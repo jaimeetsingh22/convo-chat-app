@@ -38,7 +38,7 @@ const Groups = () => {
   const [groupName, setGroupName] = useState('');
   const [groupNameUpdatedValue, setGroupNameUpdatedValue] = useState('');
   const [confirmDeleteDialog, setConfirmDeleteDialog] = useState(false);
-  const socket = getSocket();
+  const {socket} = getSocket();
   const dispatch = useDispatch();
   const { isAddMember } = useSelector(state => state.misc)
   const myGroups = useMyGroupsQuery();

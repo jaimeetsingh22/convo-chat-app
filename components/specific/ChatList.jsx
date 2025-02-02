@@ -16,12 +16,22 @@ const ChatList = ({
     const {onlineUsers} = useSelector((state) => state.chat);
     return (
         <Stack width={w} direction={'column'}>
+            <ChatItem  newMessageAlert={null}
+                        isOnline={false}
+                        avatar={["https://uxwing.com/wp-content/themes/uxwing/download/brands-and-social-media/google-gemini-icon.png"]}
+                        name={"Gemini ai - coming soon!"}
+                        groupChat={false}
+                        _id={"gemini-ai"}
+                        sameSender={false}
+                        index={0} 
+                        handleDeleteChat={()=>{}} />
             {
                 chats?.map((data, index) => {
                     const { avatar, name, id, groupChat, members } = data;
                     const newMessageAlert = newMessagesAlert.find(
                         ({ chatId }) => chatId === id
-                    )
+                    );
+                    
                     const isOnline = members?.some((member) => onlineUsers.includes(member));
                     return <ChatItem key={id}
                         newMessageAlert={newMessageAlert}

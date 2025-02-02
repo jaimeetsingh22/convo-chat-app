@@ -4,21 +4,26 @@ import { Server } from "socket.io";
 import { v4 as uuid } from "uuid";
 import {
   ALERT,
+  CALL,
+  HANG_UP,
   NEW_ATTACHMENT,
   NEW_MESSAGE,
   NEW_MESSAGE_ALERT,
   NEW_REQUEST,
+  ONGOING_CALL,
   REFETCH_CHATS,
   START_TYPING,
   STOP_TYPING,
   USER_OFFLINE,
   USER_ONLINE,
+  WEB_RTC_SIGNAL,
 } from "./constants/events.js";
 import { getSocketMembers } from "./lib/helper.js";
 import { Message } from "./models/message.js";
 import { connectToDB } from "./utils/connectToDB.js";
 import cookieParser from "cookie-parser";
 import { socketAuthenticator } from "./middlewares/socketAuth.js";
+import { ContactsOutlined } from "@mui/icons-material";
 
 const dev = process.env.NODE_ENV !== "production";
 const hostname = "localhost";
@@ -49,6 +54,7 @@ app.prepare().then(() => {
     console.log(userSocketIDs);
     onlineUsers.add(user.id.toString());
     io.emit(USER_ONLINE, Array.from(onlineUsers));
+    
     socket.on(NEW_MESSAGE, async ({ chatId, members, message }) => {
       const messageForRealTime = {
         content: message,
@@ -119,6 +125,43 @@ app.prepare().then(() => {
       const membersSockets = getSocketMembers(members);
       io.emit(REFETCH_CHATS, { members, chatId });
     });
+
+    socket.on(CALL, async (participants)=>{
+      const receiverSocket = getSocketMembers([participants.receiver.id]);
+
+      io.to(receiverSocket).emit(ONGOING_CALL, participants);
+    });
+
+    socket.on(WEB_RTC_SIGNAL,async(data)=>{
+      // console.log("inside the webrtc: ",data)
+      if(data.isCaller){
+        // console.log("reciever")
+        const receiverSocket = getSocketMembers([data.onGoingCall.participants.receiver.id]);
+        if(receiverSocket){
+          io.to(receiverSocket).emit(WEB_RTC_SIGNAL,data);
+        }
+
+      }else{
+        // console.log("caller");
+        const callerSocket = getSocketMembers([data.onGoingCall.participants.caller.id]);
+        if(callerSocket){
+          io.to(callerSocket).emit(WEB_RTC_SIGNAL,data)
+        }
+      }
+    });
+    socket.on(HANG_UP,async(data)=>{
+      if(data.onGoingCall.participants.caller.id === data.userHangingUpId){
+        const receiverSocket = getSocketMembers([data.onGoingCall.participants.receiver.id]);
+        if(receiverSocket){
+          io.to(receiverSocket).emit(HANG_UP);
+        }
+      }else{
+        const callerSocket = getSocketMembers([data.onGoingCall.participants.caller.id]);
+        if(callerSocket){
+          io.to(callerSocket).emit(HANG_UP);
+        }
+      }
+    })
 
     socket.on("disconnect", () => {
       console.log("User disconnected");

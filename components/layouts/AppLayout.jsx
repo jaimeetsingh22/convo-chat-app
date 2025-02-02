@@ -18,20 +18,22 @@ import NextTopLoader from "nextjs-toploader";
 import { useCallback, useEffect, useRef, useState } from "react";
 import toast from "react-hot-toast";
 import { useDispatch, useSelector } from "react-redux";
+import CallNotificationDialog from "../dialogs/CallNotificationDialog";
 import DeleteChatMenu from "../dialogs/DeleteChatMenu";
 import ChatlistSkeleton from "../LoadingsComponent/ChatlistSkeleton";
+import VideoCall from "../specific/VideoCall";
+
 
 const AppLayout = ({ children }) => {
   const { chatId } = useParams();
   const { status, data: userData } = useSession();
   const router = useRouter();
   const dispatch = useDispatch();
-  const socket = getSocket();
+  const { socket } = getSocket();
   const [welcomeShown, setWelcomeShown] = useState(false);
-  const [onlineUsers, setOnlineUsers] = useState([]);
   const { isLoading, data, refetch } = useMyChatsQuery();
   const isMobileMenu = useSelector(state => state.misc.isMobileMenu);
-  const { newMessageAlert } = useSelector(state => state.chat);
+  const { newMessageAlert, onGoingCall ,isRinging} = useSelector(state => state.chat);
   const deleteMenuAnchorRef = useRef(null);
 
   useEffect(() => {
@@ -75,11 +77,11 @@ const AppLayout = ({ children }) => {
 
 
 
+
   const eventHandlers = {
     [NEW_MESSAGE_ALERT]: newMessageAlertHandler,
     [NEW_REQUEST]: newRequestHandler,
     [REFETCH_CHATS]: refetchListener,
-
   };
   const handleMobileClose = () => dispatch(setIsMobileMenu(false));
 
@@ -90,12 +92,16 @@ const AppLayout = ({ children }) => {
   if (status === "unauthenticated") return null;
 
   return (
-    <div onContextMenu={(e) => { e.preventDefault(); }}>
+    <div onContextMenu={(e) => {
+      // e.preventDefault();
+
+    }}>
       <NextTopLoader showSpinner={false} />
       <CssBaseline />
       <Header userData={userData} />
       <DeleteChatMenu dispatch={dispatch} deleteMenuAnchor={deleteMenuAnchorRef} />
-
+      {/* {isRinging && <CallNotificationDialog />}
+      <VideoCall /> */}
       <Drawer open={isMobileMenu} onClose={handleMobileClose} >
         <div style={{
           background: chatListBackground,

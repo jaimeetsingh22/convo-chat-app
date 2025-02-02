@@ -5,21 +5,21 @@ import FileMenu from '@/components/dialogs/FileMenu';
 import MessageComponent from '@/components/shared/MessageComponent';
 import TypingLayout from '@/components/specific/TypingLayout';
 import { InputBox } from '@/components/styles/StyledComponent';
-import { attachFileIconColor, chatMessagesBackgroundColor, sendButtonColor, sendMessageFormBackgroundColor } from '@/constants/color';
-import { ALERT, NEW_ATTACHMENT, NEW_MESSAGE, START_TYPING, STOP_TYPING } from '@/constants/events';
+import { attachFileIconColor, chatMessagesBackgroundColor, chatMessagesHeaderColor, chatMessagesHeaderIconsColor, chatMessagesHeaderTextColor, sendButtonColor, sendMessageFormBackgroundColor } from '@/constants/color';
+import { ALERT, CALL, NEW_ATTACHMENT, NEW_MESSAGE, START_TYPING, STOP_TYPING } from '@/constants/events';
 import { useError } from '@/hooks/hook';
 import useSocketEvents from '@/hooks/useSocketEvents';
-import { removeNewMessageAlert } from '@/redux/reducers/chat';
+import { removeNewMessageAlert, setIsVoiceCall, setLocalStream, setOnGoingCall } from '@/redux/reducers/chat';
 import { setIsFileMenu } from '@/redux/reducers/miscSlice';
 import { useChatDetailsQuery, useGetMessagesQuery } from '@/redux/RTK-query/api/api';
 import { getSocket } from '@/socket';
-import { AttachFile as AttachFileIcon, SendOutlined as SendIcon } from '@mui/icons-material';
-import { IconButton, Stack } from '@mui/material';
+import { AttachFile as AttachFileIcon, Call, Camera, SendOutlined as SendIcon, VideoCall } from '@mui/icons-material';
+import { IconButton, Paper, Stack, Tooltip, Typography } from '@mui/material';
 import { useSession } from 'next-auth/react';
-import { useParams, useRouter } from 'next/navigation';
+import { useParams, useRouter, useSearchParams } from 'next/navigation';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import toast from 'react-hot-toast';
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { v4 } from 'uuid';
 
 
@@ -39,9 +39,12 @@ const Chat = () => {
   const dispatch = useDispatch();
   const router = useRouter();
   const containerRef = useRef(null);
+  const { onlineUsers } = useSelector((state) => state.chat);
 
-  const socket = getSocket();
-  // console.log(chatId)
+  const {socket,getMediaStream,setIsCallEnded }= getSocket();
+  const query = useSearchParams();
+  const chatUserName = query.get("name");
+
   const chatDetails = useChatDetailsQuery({ chatId, skip: !chatId });
   const oldMessagesChunk = useGetMessagesQuery({ chatId, page });
   const { data: oldMessages, setData: setOldMessages } = useInfiniteScrollTop(containerRef, oldMessagesChunk.data?.totalPages, page, setPage, oldMessagesChunk.data?.messages);
@@ -51,7 +54,6 @@ const Chat = () => {
   const errors = [{ isError: chatDetails.isError, error: chatDetails.error },
   { isError: oldMessagesChunk.isError, error: oldMessagesChunk.error }
   ];
-
 
 
   const openFileHandler = (e) => {
@@ -71,7 +73,7 @@ const Chat = () => {
   }
   useEffect(() => {
     dispatch(removeNewMessageAlert(chatId));
-  
+
     return () => {
       setMessages([]);
       setMessage("");
@@ -123,7 +125,6 @@ const Chat = () => {
   }, [chatId]);
 
 
-
   const startTypingListener = useCallback((data) => {
     if (data.chatId !== chatId) return;
     setUserTyping(true);
@@ -132,6 +133,94 @@ const Chat = () => {
     if (data.chatId !== chatId) return;
     setUserTyping(false);
   }, [chatId])
+
+
+
+  // video and audio call feature setup
+  // function for accessing video camera
+  const { onGoingCall } = useSelector(state => state.chat);
+  const callerId = members?.find(member => member === user.user.id);
+  const recieverName = onGoingCall?.participants?.receiver?.name;
+  const recieverAvatar = onGoingCall?.participants?.receiver?.avatar;
+
+
+
+  const handleVideoCall = useCallback(async () => {
+    setIsCallEnded(false);
+    if(!socket) return;
+    const stream = await getMediaStream();
+
+    if(!stream) {
+      toast.error("failed to access camera");
+      console.log("no stream in handle video call");
+      return;
+    };
+
+    const receiver = members?.find(member => member !== user.user.id);
+    const participants = {
+      caller: {
+        id: callerId,
+        name: user.user.name,
+        avatar: user.user.avatar.url
+      },
+      receiver: {
+        id: receiver,
+        name: recieverName,
+        avatar: recieverAvatar
+      },isVoiceCall:false
+    }
+
+    dispatch(setOnGoingCall({
+      participants
+    }));
+    socket.emit(CALL, participants);
+    socket.emit(NEW_MESSAGE, {
+      chatId,
+      members,
+      message: "📹 Video call started",
+    })
+    setMessage("");
+
+  }, [callerId, dispatch, onGoingCall,socket]);
+  
+  const handleVoiceCall = useCallback(async () => {
+    setIsCallEnded(false);
+    if(!socket) return;
+    const stream = await getMediaStream();
+
+    if(!stream) {
+      toast.error("failed to access camera");
+      console.log("no stream in handle video call");
+      return;
+    };
+
+    const receiver = members?.find(member => member !== user.user.id);
+    const participants = {
+      caller: {
+        id: callerId,
+        name: user.user.name,
+        avatar: user.user.avatar.url
+      },
+      receiver: {
+        id: receiver,
+        name: recieverName,
+        avatar: recieverAvatar
+      },isVoiceCall:true
+    }
+
+    dispatch(setOnGoingCall({
+      participants
+    }));
+    dispatch(setIsVoiceCall(true));
+    socket.emit(CALL, participants);
+    socket.emit(NEW_MESSAGE, {
+      chatId,
+      members,
+      message: "📞 Voice call started",
+    })
+    setMessage("");
+
+  }, [callerId, dispatch, onGoingCall,socket]);
 
 
 
@@ -154,9 +243,9 @@ const Chat = () => {
   }, [messages]);
 
 
- useEffect(() => {
-  if (chatDetails.isError) return router.push("/");
-}, [chatDetails, router]);
+  useEffect(() => {
+    if (chatDetails.isError) return router.push("/");
+  }, [chatDetails, router]);
 
 
   // Auto-scroll to the bottom on new message
@@ -168,11 +257,13 @@ const Chat = () => {
   }, [messages, userTyping]);
 
 
+
+
   return chatDetails.isLoading ? <Loading /> : (
     <>
       <Stack ref={containerRef}
         boxSizing={'border-box'}
-        padding={'1rem'}
+        // padding={'1rem'}
         spacing={'1rem'}
         height={'90%'}
         bgcolor={chatMessagesBackgroundColor}
@@ -187,9 +278,36 @@ const Chat = () => {
             backgroundColor: 'black',
             borderRadius: '10px',
           },
+          position: 'relative',
         }}
       >
-
+        <Paper elevation={5} sx={{
+          backgroundColor: chatMessagesHeaderColor, position: 'sticky',
+          width: '100%',
+          zIndex: 100,
+          top: '0',
+          left: '0',
+          padding: '0.5rem',
+        }} >
+          <Stack direction={'row'} justifyContent={'space-between'} alignItems={'center'}>
+            <Typography variant="h6" sx={{ color: chatMessagesHeaderTextColor, fontWeight: 'bold', textTransform: 'capitalize' }}>
+              {chatUserName}
+            </Typography>
+            {/* camera icon and call icon on the right side */}
+            <Stack direction={'row'} spacing={'1rem'}>
+              <Tooltip title="Video Call">
+                <IconButton onClick={handleVideoCall} sx={{ color: chatMessagesHeaderIconsColor }}>
+                  <VideoCall />
+                </IconButton>
+              </Tooltip>
+              <Tooltip title="Voice Call">
+                <IconButton onClick={handleVoiceCall} sx={{ color: chatMessagesHeaderIconsColor }}>
+                  <Call />
+                </IconButton>
+              </Tooltip>
+            </Stack>
+          </Stack>
+        </Paper>
         {
           allMessages.map((i) => (
             <MessageComponent key={i._id} message={i} user={user?.user} />
