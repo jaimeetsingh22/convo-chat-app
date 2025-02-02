@@ -12,7 +12,7 @@ import { ALERT, REFETCH_CHATS } from '@/constants/events'
 const AddMemberDialog = ({ chatId }) => {
 
 
-    const socket = getSocket();
+    const {socket} = getSocket();
     const [members, setMembers] = useState(sampleUsers);
     const [addMembers, isLoadingAddMembers] = useAsyncMutation(useAddGroupMemberMutation);
     const { isLoading, data, isError, error } = useAvailableFriendsQuery(chatId);

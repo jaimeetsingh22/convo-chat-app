@@ -13,7 +13,7 @@ const FileMenu = ({ anchorE1, chatId }) => {
   const [previewFile, setPreviewFile] = useState(null); // New state for file preview
   const [isOpen, setIsOpen] = useState(false);
 
-  const socket = getSocket();
+  const {socket} = getSocket();
   const dispatch = useDispatch();
 
   const imageRef = useRef(null);

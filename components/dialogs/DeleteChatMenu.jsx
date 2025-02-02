@@ -14,7 +14,7 @@ const DeleteChatMenu = ({ dispatch, deleteMenuAnchor }) => {
     const router = useRouter();
     const [UnfriendChat] = useAsyncMutation(useDeleteChatMutation)
     const [leaveGroup] = useAsyncMutation(useLeaveGroupMutation)
-    const socket = getSocket();
+    const {socket} = getSocket();
     const closeHandler = () => {
         dispatch(setIsDeleteMenu(false));
         deleteMenuAnchor.current = null;
